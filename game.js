@@ -71,12 +71,14 @@ Anji`,
     },
   ],
 
-  // The Comfort Room's stars -- fixed messages, one per star, shown in order.
-  comfortMessages: [
-    "For days when you're tired. 🌙",
-    "For days when you need comfort.",
-    "For days you just need reminding: you are loved, exactly as you are.",
-  ],
+  // Short "mission" text shown in a banner when the player first steps
+  // into a room -- a little nudge toward what there is to do there.
+  roomIntros: {
+    garden: "Some flowers hide little messages. Find the reasons why you are special. 🌸",
+    letter: "A special letter is waiting somewhere in this room. Maybe it has something I want to tell you. 💌",
+    music: "Songs I dedicated for you are waiting here. Hurry and find them. 🎧",
+    giftArea: "One last surprise, made just for you. 🎁",
+  },
 
   // What the NPC version of the sender says in the hub.
   npcDialogue: [
@@ -85,7 +87,7 @@ Anji`,
     "There are a few little rooms around here. Take your time exploring them -- there's no rush.",
   ],
 
-  // What the locked gate says before all four rooms are visited.
+  // What the locked gate says before all three rooms are visited.
   gateLockedMessage: "The gate won't budge yet. Maybe there's a little more to see first. 🌷",
 
   // Shown when the gift in the Final Gift Area is opened. {name} is
@@ -140,6 +142,7 @@ const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
 
 const hudRoomEl = document.getElementById("hud-room");
+const roomIntroEl = document.getElementById("room-intro");
 const interactPromptEl = document.getElementById("interact-prompt");
 const dialogueBoxEl = document.getElementById("dialogue-box");
 const dialogueNameEl = document.getElementById("dialogue-name");
@@ -157,7 +160,7 @@ const state = {
   buddy: "flower",
   room: "hub",
   player: { x: 200, y: 190, vx: 0, vy: 0, facing: "down", moving: false },
-  visited: { garden: false, letter: false, music: false, comfort: false, giftArea: false },
+  visited: { garden: false, letter: false, music: false, giftArea: false },
   muted: false,
   volume: 0.6,
   letterOpenedOnce: false,
@@ -245,6 +248,17 @@ const AudioManager = {
     this.bgm.play().catch(() => {
       /* file not added yet -- fine, silence is okay */
     });
+  },
+
+  // Plays a one-off named track (e.g. the finale's piano cover) outside the
+  // normal per-room rotation, and forgets the current room so stepping
+  // back into a room afterward reliably restarts its own music.
+  playTrack(name) {
+    this.currentBgmRoom = null;
+    this.bgm.pause();
+    this.bgm.src = `assets/sounds/bgm-${name}.mp3`;
+    this.applyVolume();
+    this.bgm.play().catch(() => {});
   },
 
   sfx(name) {
@@ -391,35 +405,104 @@ function exitDoor(target) {
 const rooms = {
   hub: {
     label: "The Hub",
-    theme: { a: "#DDEFCB", b: "#CFE6B8" },
+    theme: { a: "#DDEFCB", b: "#CFE6B8", floor: "grass" },
     obstacles: [
-      { x: 20, y: 20, w: 28, h: 22 },
-      { x: 352, y: 20, w: 28, h: 22 },
-      { x: 20, y: 190, w: 28, h: 22 },
-      { x: 352, y: 190, w: 28, h: 22 },
+      // Building walls (visuals handled by drawBuildingFacade, not drawObstacle)
+      // -- Gift Area, top --
+      { x: 150, y: 0, w: 30, h: 46, hidden: true },
+      { x: 220, y: 0, w: 30, h: 46, hidden: true },
+      // -- Music Room, left --
+      { x: 0, y: 70, w: 50, h: 30, hidden: true },
+      { x: 0, y: 140, w: 50, h: 30, hidden: true },
+      // -- Letter Room, right --
+      { x: 350, y: 70, w: 50, h: 30, hidden: true },
+      { x: 350, y: 140, w: 50, h: 30, hidden: true },
+      // -- Flower Garden, bottom --
+      { x: 150, y: 194, w: 30, h: 46, hidden: true },
+      { x: 220, y: 194, w: 30, h: 46, hidden: true },
       { x: 182, y: 106, w: 36, h: 30, round: true }, // little fountain
     ],
+    // Building facades -- purely visual, drawn depth-sorted with decor.
+    buildings: [
+      { x: 150, y: 0, w: 100, h: 46, doorX: 180, doorW: 40, roof: "#E3B873", roofAccent: "#F5C77E", wall: "#FFF7E9", label: "🎁", side: "top", gate: true, kind: "party" },
+      { x: 0, y: 70, w: 50, h: 100, doorY: 100, doorH: 40, roof: "#8FB3D9", roofAccent: "#6E93BE", wall: "#EEF5FC", label: "🎵", side: "left", kind: "studio" },
+      { x: 350, y: 70, w: 50, h: 100, doorY: 100, doorH: 40, roof: "#C99A55", roofAccent: "#A87B3B", wall: "#FBF1E3", label: "💌", side: "right", kind: "library" },
+      { x: 150, y: 194, w: 100, h: 46, doorX: 180, doorW: 40, roof: "#E39BB0", roofAccent: "#F2C2D2", wall: "#FFF3F7", label: "🌸", side: "bottom", kind: "greenhouse" },
+    ],
+    // Decorative, non-collidable environmental details -- scattered with
+    // natural, irregular spacing rather than a symmetrical grid. Each item
+    // carries enough of its own footprint that depth-sorting against the
+    // buildings gives correct in-front/behind layering.
+    decor: [
+      // corner + edge trees, offset unevenly so nothing lines up
+      { type: "tree", x: 6, y: 40 },
+      { type: "tree", x: 24, y: 18 },
+      { type: "tree", x: 112, y: 34 },
+      { type: "tree", x: 288, y: 30 },
+      { type: "tree", x: 372, y: 42, flip: true },
+      { type: "tree", x: 392, y: 18, flip: true },
+      { type: "tree", x: 396, y: 152, flip: true },
+      { type: "tree", x: 370, y: 190, flip: true },
+      { type: "tree", x: 4, y: 150 },
+      { type: "tree", x: 26, y: 196 },
+      { type: "bush", x: 50, y: 156 },
+      { type: "bush", x: 90, y: 60 },
+      { type: "bush", x: 306, y: 62 },
+      { type: "bush", x: 344, y: 158 },
+      { type: "bush", x: 130, y: 210 },
+      { type: "bush", x: 280, y: 214 },
+      { type: "rock", x: 64, y: 52 },
+      { type: "rock", x: 330, y: 54 },
+      { type: "rock", x: 20, y: 110 },
+      { type: "rock", x: 378, y: 100 },
+      { type: "plant", x: 128, y: 176 },
+      { type: "plant", x: 264, y: 178 },
+      { type: "plant", x: 68, y: 130 },
+      { type: "plant", x: 340, y: 128 },
+      { type: "leafPatch", x: 44, y: 202 },
+      { type: "leafPatch", x: 312, y: 208 },
+      { type: "leafPatch", x: 100, y: 92 },
+      { type: "leafPatch", x: 250, y: 96 },
+      { type: "leafPatch", x: 200, y: 170 },
+      { type: "gardenFlower", x: 116, y: 152, color: "#FFD3E0" },
+      { type: "gardenFlower", x: 296, y: 150, color: "#F5C77E" },
+      { type: "gardenFlower", x: 76, y: 176 },
+      { type: "gardenFlower", x: 322, y: 174, color: "#C9A6E0" },
+    ],
     doors: [
-      { x: 40, y: 0, w: 40, h: 14, label: "🌸", target: "garden", spawn: ROOM_SPAWN, auto: true },
-      { x: 320, y: 0, w: 40, h: 14, label: "💌", target: "letter", spawn: ROOM_SPAWN, auto: true },
-      { x: 0, y: 100, w: 14, h: 40, label: "🎵", target: "music", spawn: ROOM_SPAWN, auto: true },
-      { x: 386, y: 100, w: 14, h: 40, label: "🌙", target: "comfort", spawn: ROOM_SPAWN, auto: true },
-      {
-        x: 180, y: 0, w: 40, h: 14, label: "🎁", target: "giftArea", spawn: ROOM_SPAWN, auto: true,
-        gate: true,
-      },
+      { x: 180, y: 0, w: 40, h: 14, label: "", target: "giftArea", spawn: ROOM_SPAWN, auto: true, gate: true },
+      { x: 0, y: 100, w: 14, h: 40, label: "", target: "music", spawn: ROOM_SPAWN, auto: true },
+      { x: 386, y: 100, w: 14, h: 40, label: "", target: "letter", spawn: ROOM_SPAWN, auto: true },
+      { x: 180, y: 226, w: 40, h: 14, label: "", target: "garden", spawn: ROOM_SPAWN, auto: true },
     ],
     interactables: [
-      { x: 100, y: 150, w: 16, h: 20, type: "npc", label: "" },
+      { x: 92, y: 150, w: 16, h: 20, type: "npc", label: "" },
     ],
   },
 
   garden: {
     label: "Flower Garden",
-    theme: { a: "#EAF6D8", b: "#DDEFC0" },
+    theme: { a: "#EAF6D8", b: "#DDEFC0", floor: "grass" },
     obstacles: [
       { x: 30, y: 30, w: 24, h: 20 },
       { x: 340, y: 190, w: 24, h: 20 },
+    ],
+    decor: [
+      { type: "tree", x: 4, y: 6 },
+      { type: "tree", x: 394, y: 10, flip: true },
+      { type: "bush", x: 20, y: 190 },
+      { type: "bush", x: 366, y: 60 },
+      { type: "bush", x: 200, y: 20 },
+      { type: "plant", x: 120, y: 200 },
+      { type: "plant", x: 210, y: 205 },
+      { type: "plant", x: 350, y: 150 },
+      { type: "leafPatch", x: 40, y: 120 },
+      { type: "leafPatch", x: 260, y: 40 },
+      { type: "leafPatch", x: 190, y: 150 },
+      { type: "gardenFlower", x: 110, y: 120 },
+      { type: "gardenFlower", x: 190, y: 200 },
+      { type: "gardenFlower", x: 260, y: 150 },
+      { type: "gardenFlower", x: 340, y: 110 },
     ],
     doors: [exitDoor("hub")],
     interactables: [
@@ -434,46 +517,63 @@ const rooms = {
 
   letter: {
     label: "Letter Room",
-    theme: { a: "#F7EAD8", b: "#EFDCC1" },
+    theme: { a: "#F7EAD8", b: "#EFDCC1", floor: "wood" },
     obstacles: [
-      { x: 0, y: 60, w: 20, h: 100 },
-      { x: 380, y: 60, w: 20, h: 100 },
+      { x: 0, y: 40, w: 24, h: 130, hidden: true },
+      { x: 376, y: 40, w: 24, h: 130, hidden: true },
+    ],
+    decor: [
+      { type: "bookshelf", x: 2, y: 10 },
+      { type: "bookshelf", x: 350, y: 10 },
+      { type: "rug", x: 130, y: 130, w: 140, h: 70 },
+      { type: "papers", x: 130, y: 150 },
+      { type: "papers", x: 250, y: 160 },
+      { type: "lamp", x: 300, y: 40 },
+      { type: "lamp", x: 60, y: 40 },
     ],
     doors: [exitDoor("hub")],
     interactables: [
-      { x: 176, y: 70, w: 48, h: 30, type: "desk", label: "✍️" },
+      { x: 168, y: 66, w: 64, h: 38, type: "desk", label: "✍️" },
     ],
   },
 
   music: {
     label: "Music Room",
-    theme: { a: "#FBE6ED", b: "#F6D2E0" },
+    theme: { a: "#FBE6ED", b: "#F6D2E0", floor: "wood" },
     obstacles: [
-      { x: 0, y: 60, w: 20, h: 100 },
-      { x: 380, y: 60, w: 20, h: 100 },
+      { x: 0, y: 40, w: 24, h: 130, hidden: true },
+      { x: 376, y: 40, w: 24, h: 130, hidden: true },
+      { x: 155, y: 132, w: 90, h: 24, hidden: true },
+    ],
+    decor: [
+      { type: "guitar", x: 20, y: 20 },
+      { type: "guitar", x: 356, y: 20 },
+      { type: "piano", x: 20, y: 150 },
+      { type: "amp", x: 340, y: 150 },
+      { type: "notesWallpaper", x: 0, y: 0 },
+      { type: "table", x: 155, y: 110, w: 90, h: 46 },
     ],
     doors: [exitDoor("hub")],
     interactables: [
-      { x: 180, y: 70, w: 40, h: 40, type: "radio", label: "📻" },
-    ],
-  },
-
-  comfort: {
-    label: "Comfort Room",
-    theme: { a: "#3A2E4D", b: "#463855", night: true },
-    obstacles: [],
-    doors: [exitDoor("hub")],
-    interactables: [
-      { x: 80, y: 60, w: 16, h: 16, type: "star", label: "⭐", messageIndex: 0 },
-      { x: 200, y: 90, w: 16, h: 16, type: "star", label: "⭐", messageIndex: 1 },
-      { x: 310, y: 60, w: 16, h: 16, type: "star", label: "⭐", messageIndex: 2 },
+      { x: 180, y: 78, w: 40, h: 40, type: "radio", label: "📻" },
     ],
   },
 
   giftArea: {
     label: "Final Gift Area",
-    theme: { a: "#FFEAF1", b: "#FFD9E6" },
-    obstacles: [],
+    theme: { a: "#FFEAF1", b: "#FFD9E6", floor: "party" },
+    obstacles: [
+      { x: 158, y: 152, w: 84, h: 18, hidden: true },
+    ],
+    decor: [
+      { type: "balloon", x: 30, y: 10, color: "#FF97B4" },
+      { type: "balloon", x: 60, y: 30, color: "#FFD3E0" },
+      { type: "balloon", x: 340, y: 10, color: "#8FB3D9" },
+      { type: "balloon", x: 365, y: 34, color: "#C9A6E0" },
+      { type: "balloon", x: 200, y: 6, color: "#F5C77E" },
+      { type: "bunting", x: 0, y: 0 },
+      { type: "table", x: 158, y: 130, w: 84, h: 40 },
+    ],
     doors: [exitDoor("hub")],
     interactables: [
       { x: 178, y: 90, w: 44, h: 50, type: "gift", label: "🎁" },
@@ -635,12 +735,6 @@ function handleInteractPress() {
 
     case "radio":
       openModal("modal-music");
-      AudioManager.sfx("interact");
-      break;
-
-    case "star":
-      obj.poppedAt = performance.now();
-      dialogue.show("", [CONFIG.comfortMessages[obj.messageIndex] || "🤍"]);
       AudioManager.sfx("interact");
       break;
 
@@ -874,6 +968,18 @@ document.getElementById("btn-settings").addEventListener("click", () => openModa
 /* =========================================================================
    ROOM TRANSITIONS
 ========================================================================= */
+let roomIntroTimer = null;
+function showRoomIntro(roomId) {
+  const text = CONFIG.roomIntros[roomId];
+  if (!text) return;
+  clearTimeout(roomIntroTimer);
+  roomIntroEl.textContent = text;
+  requestAnimationFrame(() => roomIntroEl.classList.add("visible"));
+  roomIntroTimer = setTimeout(() => {
+    roomIntroEl.classList.remove("visible");
+  }, 4200);
+}
+
 function goToRoom(roomId, spawn) {
   state.room = roomId;
   state.player.x = spawn.x;
@@ -882,6 +988,7 @@ function goToRoom(roomId, spawn) {
   state.player.vy = 0;
   hudRoomEl.textContent = rooms[roomId].label;
   AudioManager.playRoomMusic(roomId);
+  showRoomIntro(roomId);
 
   if (roomId !== "hub" && state.visited[roomId] !== undefined) {
     state.visited[roomId] = true;
@@ -913,8 +1020,8 @@ function goToRoomWithFade(roomId, spawn) {
   }, ROOM_FADE_MS);
 }
 
-function allFourVisited() {
-  return state.visited.garden && state.visited.letter && state.visited.music && state.visited.comfort;
+function allRoomsVisited() {
+  return state.visited.garden && state.visited.letter && state.visited.music;
 }
 
 /* =========================================================================
@@ -1072,7 +1179,7 @@ function update(dt) {
 
     for (const door of room.doors) {
       if (rectsOverlap(box, door)) {
-        if (door.gate && !allFourVisited()) {
+        if (door.gate && !allRoomsVisited()) {
           const now = performance.now();
           if (now - lastGateWarningAt > 2500) {
             lastGateWarningAt = now;
@@ -1133,30 +1240,64 @@ function update(dt) {
 /* =========================================================================
    RENDERING
 ========================================================================= */
+/* Natural pixel-tile floors, one style per room mood, instead of a flat
+   checkerboard -- grass for the outdoor areas, cozy wood planks for the
+   library and studio, and a soft party tile for the gift area. */
 function drawFloor(theme) {
-  const cols = GAME_W / TILE;
-  const rows = GAME_H / TILE;
+  const cols = Math.ceil(GAME_W / TILE);
+  const rows = Math.ceil(GAME_H / TILE);
+  const kind = theme.floor || "grass";
+
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      ctx.fillStyle = (row + col) % 2 === 0 ? theme.a : theme.b;
-      ctx.fillRect(col * TILE, row * TILE, TILE, TILE);
+      const x = col * TILE;
+      const y = row * TILE;
+      // a gentle irregular blend instead of a strict alternating pattern
+      const n = Math.abs(Math.sin(col * 12.9898 + row * 78.233) * 43758.5453) % 1;
+      const shade = n > 0.55 ? theme.b : theme.a;
+      ctx.fillStyle = shade;
+      ctx.fillRect(x, y, TILE, TILE);
+
+      if (kind === "grass") {
+        // little tufts of grass, sparse and irregular
+        if (n > 0.82) {
+          ctx.fillStyle = "rgba(92,58,71,0.10)";
+          ctx.fillRect(x + 4, y + TILE - 6, 2, 4);
+          ctx.fillRect(x + 11, y + TILE - 7, 2, 5);
+        }
+      } else if (kind === "wood") {
+        // horizontal plank seams
+        ctx.strokeStyle = "rgba(92,58,71,0.14)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(x, y + TILE - 1);
+        ctx.lineTo(x + TILE, y + TILE - 1);
+        ctx.stroke();
+        if (col % 4 === (row % 2 === 0 ? 0 : 2)) {
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, y + TILE);
+          ctx.stroke();
+        }
+      } else if (kind === "party") {
+        // soft pastel diamond fleck, like confetti pressed into the tile
+        if (n > 0.6) {
+          ctx.fillStyle = ["#FFFFFF", "#FFD3E0", "#F5C77E"][Math.floor(n * 7) % 3];
+          ctx.globalAlpha = 0.5;
+          ctx.save();
+          ctx.translate(x + TILE / 2, y + TILE / 2);
+          ctx.rotate(Math.PI / 4);
+          ctx.fillRect(-2, -2, 4, 4);
+          ctx.restore();
+          ctx.globalAlpha = 1;
+        }
+      }
     }
-  }
-  if (theme.night) {
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    const t = performance.now() / 900;
-    for (let i = 0; i < 24; i++) {
-      const sx = (i * 53) % GAME_W;
-      const sy = (i * 37) % (GAME_H - 40);
-      const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(t + i));
-      ctx.globalAlpha = twinkle;
-      ctx.fillRect(sx, sy, 2, 2);
-    }
-    ctx.globalAlpha = 1;
   }
 }
 
 function drawObstacle(o) {
+  if (o.hidden) return; // its visual is drawn separately (building/decor)
   ctx.save();
   ctx.fillStyle = "rgba(92,58,71,0.18)";
   if (o.round) {
@@ -1170,13 +1311,14 @@ function drawObstacle(o) {
 }
 
 function drawDoor(door) {
+  if (!door.label) return; // hub doors are drawn as part of their building facade
   ctx.save();
   ctx.font = "12px sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = "#000000";
   let ox = door.x + door.w / 2;
-  if (door.gate && !allFourVisited()) {
+  if (door.gate && !allRoomsVisited()) {
     ctx.globalAlpha = 0.45;
     const now = performance.now();
     if (now < gateShakeUntil && !prefersReducedMotion) {
@@ -1186,6 +1328,425 @@ function drawDoor(door) {
   }
   ctx.fillText(door.label, ox, door.y + door.h / 2);
   ctx.restore();
+}
+
+/* =========================================================================
+   HUB BUILDING FACADES
+   Small pixel building fronts standing in for each room's entrance --
+   just enough wall, roof, door and windows to read as a building, not a
+   full structure. Doors are cut directly at the walk-in trigger zone.
+========================================================================= */
+function drawBuildingFacade(b, t) {
+  const unlocked = b.gate ? allRoomsVisited() : true;
+  const locked = b.gate && !unlocked;
+
+  ctx.save();
+
+  if (b.side === "left") {
+    // vertical facade hugging the left wall
+    ctx.fillStyle = b.roof;
+    ctx.fillRect(b.x + 14, b.y, b.w - 14, 8); // eave strip
+    ctx.fillStyle = b.wall;
+    ctx.fillRect(b.x + 14, b.y + 8, b.w - 14, b.h - 8);
+    // windows
+    ctx.fillStyle = "rgba(92,58,71,0.16)";
+    ctx.fillRect(b.x + b.w - 16, b.y + 16, 8, 8);
+    ctx.fillRect(b.x + b.w - 16, b.y + b.h - 24, 8, 8);
+    // door opening
+    ctx.fillStyle = "#5C3A47";
+    ctx.fillRect(b.x, b.doorY, 14, b.doorH);
+    ctx.font = "13px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(b.label, b.x + 7, b.doorY + b.doorH / 2);
+  } else {
+    // facade opening upward off the top edge
+    let dx = b.doorX + b.doorW / 2;
+    if (locked && performance.now() < gateShakeUntil && !prefersReducedMotion) {
+      const remaining = (gateShakeUntil - performance.now()) / 420;
+      dx += Math.sin(performance.now() / 28) * remaining * 4;
+    }
+
+    // door opening at the very top edge
+    ctx.fillStyle = "#5C3A47";
+    ctx.fillRect(b.doorX, b.y, b.doorW, 14);
+
+    // eave / lintel
+    ctx.fillStyle = b.roof;
+    ctx.fillRect(b.x, b.y + 14, b.w, 8);
+
+    // wall body
+    ctx.fillStyle = b.wall;
+    ctx.fillRect(b.x, b.y + 22, b.w, b.h - 22);
+
+    // little windows either side of the door
+    ctx.fillStyle = "rgba(92,58,71,0.16)";
+    ctx.fillRect(b.x + 10, b.y + 30, 10, 10);
+    ctx.fillRect(b.x + b.w - 20, b.y + 30, 10, 10);
+
+    ctx.font = "13px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(b.label, dx, b.y + 7);
+
+    if (b.gate) {
+      if (locked) {
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = "#000000";
+        ctx.fillRect(b.doorX, b.y, b.doorW, 14);
+        ctx.globalAlpha = 1;
+        ctx.font = "10px sans-serif";
+        ctx.fillText("🔒", dx, b.y + 7);
+      } else {
+        // gentle golden glow + a couple of sparkles once the gate opens
+        const pulse = prefersReducedMotion ? 0.7 : 0.55 + 0.45 * Math.sin(t * 3);
+        const grad = ctx.createRadialGradient(dx, b.y + 7, 2, dx, b.y + 7, 26);
+        grad.addColorStop(0, `rgba(227,184,115,${0.55 * pulse})`);
+        grad.addColorStop(1, "rgba(227,184,115,0)");
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(dx, b.y + 7, 26, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.font = "10px sans-serif";
+        ctx.globalAlpha = pulse;
+        ctx.fillText("✨", dx - 20, b.y - 2 + Math.sin(t * 2) * 2);
+        ctx.fillText("✨", dx + 20, b.y - 2 + Math.cos(t * 2) * 2);
+        ctx.globalAlpha = 1;
+      }
+    }
+  }
+
+  ctx.restore();
+}
+
+/* =========================================================================
+   ENVIRONMENT / ROOM DECOR
+   Purely decorative pixel props -- trees, bushes, library and studio
+   furnishings, party details -- with a soft wind sway where it helps
+   the space feel alive rather than static.
+========================================================================= */
+function sway(t, x, amount = 1) {
+  return prefersReducedMotion ? 0 : Math.sin(t * 1.4 + x * 0.06) * amount;
+}
+
+function drawTree(x, y, t, flip) {
+  const s = sway(t, x, 2.5) * (flip ? -1 : 1);
+  ctx.save();
+  ctx.translate(x, y);
+  // trunk
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(-3, 0, 6, 14);
+  // canopy, three soft overlapping blobs that sway together
+  ctx.translate(0, -2);
+  ctx.rotate((s * Math.PI) / 180);
+  ctx.fillStyle = "#9FD08A";
+  ctx.beginPath();
+  ctx.ellipse(0, -14, 15, 13, 0, 0, Math.PI * 2);
+  ctx.ellipse(-11, -6, 10, 9, 0, 0, Math.PI * 2);
+  ctx.ellipse(11, -6, 10, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#B8E3A6";
+  ctx.beginPath();
+  ctx.ellipse(-4, -18, 7, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBush(x, y, t) {
+  const s = sway(t, x, 1.2);
+  ctx.save();
+  ctx.translate(x + s, y);
+  ctx.fillStyle = "#8FC97D";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 14, 9, 0, 0, Math.PI * 2);
+  ctx.ellipse(-10, 2, 8, 6, 0, 0, Math.PI * 2);
+  ctx.ellipse(10, 2, 8, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#FF97B4";
+  ctx.beginPath();
+  ctx.arc(-6, -2, 1.6, 0, Math.PI * 2);
+  ctx.arc(5, -3, 1.6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPlant(x, y, t) {
+  const s = sway(t, x, 3);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "#7BAA63";
+  for (let i = -1; i <= 1; i++) {
+    ctx.save();
+    ctx.translate(i * 4, 0);
+    ctx.rotate(((s * i) * Math.PI) / 180);
+    ctx.beginPath();
+    ctx.ellipse(0, -8, 3, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
+
+function drawLeafPatch(x, y, t) {
+  ctx.save();
+  ctx.font = "10px sans-serif";
+  ctx.globalAlpha = 0.8;
+  ctx.fillText("🍃", x + sway(t, x, 3), y);
+  ctx.fillText("🍃", x + 10 + sway(t, x + 10, 3), y + 4);
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawGardenFlower(x, y, t) {
+  const s = sway(t, x, 4);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((s * Math.PI) / 180);
+  ctx.strokeStyle = "#7BAA63";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, 10);
+  ctx.lineTo(0, -6);
+  ctx.stroke();
+  ctx.fillStyle = "#FFD3E0";
+  for (let i = 0; i < 5; i++) {
+    const a = (i / 5) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.ellipse(Math.cos(a) * 4, -6 + Math.sin(a) * 4, 2.6, 1.8, a, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#F5C77E";
+  ctx.beginPath();
+  ctx.arc(0, -6, 2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBookshelf(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(0, 0, 48, 100);
+  const colors = ["#FF97B4", "#8FB3D9", "#C9A6E0", "#F5C77E", "#9FD08A"];
+  for (let row = 0; row < 4; row++) {
+    ctx.fillStyle = "#F7EAD8";
+    ctx.fillRect(4, 6 + row * 24, 40, 18);
+    let bx = 6;
+    for (let i = 0; i < 7; i++) {
+      ctx.fillStyle = colors[(row + i) % colors.length];
+      ctx.fillRect(bx, 8 + row * 24, 4, 14);
+      bx += 5;
+    }
+  }
+  ctx.restore();
+}
+
+function drawRug(x, y, w, h) {
+  ctx.save();
+  ctx.fillStyle = "rgba(255,151,180,0.22)";
+  roundRectFill(ctx, x, y, w, h, 10);
+  ctx.strokeStyle = "rgba(255,151,180,0.4)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x + 6, y + 6, w - 12, h - 12);
+  ctx.restore();
+}
+
+function drawPapers(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "#FFFDF7";
+  ctx.save(); ctx.rotate(-0.08); ctx.fillRect(0, 0, 16, 12); ctx.restore();
+  ctx.save(); ctx.translate(8, 3); ctx.rotate(0.12); ctx.fillRect(0, 0, 16, 12); ctx.restore();
+  ctx.restore();
+}
+
+function drawLamp(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(6, 10, 4, 20);
+  const glow = prefersReducedMotion ? 0.7 : 0.6 + 0.4 * Math.sin(t * 2 + x);
+  ctx.fillStyle = "#E3B873";
+  ctx.beginPath();
+  ctx.moveTo(0, 10);
+  ctx.lineTo(16, 10);
+  ctx.lineTo(12, 0);
+  ctx.lineTo(4, 0);
+  ctx.closePath();
+  ctx.fill();
+  const grad = ctx.createRadialGradient(8, 8, 1, 8, 8, 16);
+  grad.addColorStop(0, `rgba(255,224,150,${0.5 * glow})`);
+  grad.addColorStop(1, "rgba(255,224,150,0)");
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(8, 8, 16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawGuitar(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.15);
+  ctx.strokeStyle = "#8A6470";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(6, 40);
+  ctx.lineTo(6, 6);
+  ctx.stroke();
+  ctx.fillStyle = "#C99A55";
+  ctx.beginPath();
+  ctx.ellipse(6, 44, 9, 12, 0, 0, Math.PI * 2);
+  ctx.ellipse(6, 60, 11, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#5C3A47";
+  ctx.beginPath();
+  ctx.arc(6, 50, 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPiano(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "#5C3A47";
+  ctx.fillRect(0, 0, 60, 26);
+  ctx.fillStyle = "#FFFDF7";
+  for (let i = 0; i < 8; i++) ctx.fillRect(4 + i * 7, 2, 5, 14);
+  ctx.fillStyle = "#3A2E4D";
+  for (let i = 0; i < 7; i++) ctx.fillRect(7 + i * 7, 2, 3, 9);
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(0, 16, 60, 10);
+  ctx.restore();
+}
+
+function drawAmp(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "#5C3A47";
+  ctx.fillRect(0, 0, 34, 30);
+  ctx.fillStyle = "#3A2E4D";
+  ctx.beginPath();
+  ctx.arc(11, 15, 8, 0, Math.PI * 2);
+  ctx.arc(25, 15, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawNotesWallpaper(t) {
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.font = "11px sans-serif";
+  ctx.fillStyle = "#FF7DA0";
+  for (let i = 0; i < 6; i++) {
+    const x = 40 + i * 60;
+    const y = 20 + Math.sin(t + i) * 4;
+    ctx.fillText("♪", x, y);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+function drawTable(x, y, w, h) {
+  ctx.save();
+  ctx.fillStyle = "#C99A55";
+  roundRectFill(ctx, x, y, w, h, 6);
+  ctx.fillStyle = "rgba(92,58,71,0.25)";
+  ctx.fillRect(x, y + h - 6, w, 6);
+  ctx.strokeStyle = "rgba(92,58,71,0.2)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 4, y + 4, w - 8, h - 14);
+  ctx.restore();
+}
+
+function drawBalloon(x, y, color, t) {
+  const bob = sway(t, x, 4);
+  ctx.save();
+  ctx.translate(x, y + bob);
+  ctx.strokeStyle = "rgba(92,58,71,0.4)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, 14);
+  ctx.lineTo(0, 40);
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 10, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.4)";
+  ctx.beginPath();
+  ctx.ellipse(-3, -4, 2.4, 3.4, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBunting(t) {
+  ctx.save();
+  const colors = ["#FF97B4", "#F5C77E", "#8FB3D9", "#C9A6E0"];
+  for (let i = 0; i < 10; i++) {
+    const x = i * 44 + 10;
+    const y = 4 + Math.sin(t * 1.2 + i) * 2;
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 16, y);
+    ctx.lineTo(x + 8, y + 14);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawBouquet(x, y, t) {
+  const s = sway(t, x, 3);
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate((s * Math.PI) / 180);
+  ctx.fillStyle = "#7BAA63";
+  ctx.beginPath();
+  ctx.moveTo(0, 30);
+  ctx.lineTo(-6, 6);
+  ctx.lineTo(6, 6);
+  ctx.closePath();
+  ctx.fill();
+  const petalColors = ["#FF97B4", "#FFD3E0", "#F5C77E", "#C9A6E0"];
+  const positions = [[-10, -2], [10, -2], [0, -12], [-6, 4], [6, 4]];
+  positions.forEach(([px, py], i) => {
+    ctx.fillStyle = petalColors[i % petalColors.length];
+    for (let k = 0; k < 5; k++) {
+      const a = (k / 5) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.ellipse(px + Math.cos(a) * 4, py + Math.sin(a) * 4, 2.4, 1.6, a, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = "#F5C77E";
+    ctx.beginPath();
+    ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.restore();
+}
+
+function drawDecorItem(item, t) {
+  switch (item.type) {
+    case "tree": drawTree(item.x, item.y, t, item.flip); break;
+    case "bush": drawBush(item.x, item.y, t); break;
+    case "plant": drawPlant(item.x, item.y, t); break;
+    case "leafPatch": drawLeafPatch(item.x, item.y, t); break;
+    case "gardenFlower": drawGardenFlower(item.x, item.y, t); break;
+    case "bookshelf": drawBookshelf(item.x, item.y); break;
+    case "rug": drawRug(item.x, item.y, item.w, item.h); break;
+    case "papers": drawPapers(item.x, item.y); break;
+    case "lamp": drawLamp(item.x, item.y, t); break;
+    case "guitar": drawGuitar(item.x, item.y); break;
+    case "piano": drawPiano(item.x, item.y); break;
+    case "amp": drawAmp(item.x, item.y); break;
+    case "notesWallpaper": drawNotesWallpaper(t); break;
+    case "table": drawTable(item.x, item.y, item.w, item.h); break;
+    case "balloon": drawBalloon(item.x, item.y, item.color, t); break;
+    case "bunting": drawBunting(t); break;
+    case "bouquet": drawBouquet(item.x, item.y, t); break;
+  }
 }
 
 const POP_DURATION = 380; // ms, matches the little bounce when an interactable is triggered
@@ -1202,6 +1763,12 @@ function drawInteractable(obj, t) {
     } else {
       obj.poppedAt = null;
     }
+  }
+
+  if (obj.type === "gift") {
+    // the main gift is a little pixel bouquet, not a plain box
+    drawBouquet(obj.x + obj.w / 2, obj.y + obj.h - 6 + bob, t);
+    return;
   }
 
   ctx.save();
@@ -1347,9 +1914,11 @@ function render(t) {
   ctx.clearRect(0, 0, GAME_W, GAME_H);
   drawFloor(room.theme);
 
+  if (room.decor) room.decor.forEach((item) => drawDecorItem(item, t));
   room.obstacles.forEach(drawObstacle);
   drawParticles();
   room.doors.forEach(drawDoor);
+  if (room.buildings) room.buildings.forEach((b) => drawBuildingFacade(b, t));
 
   if (nearestInteractable && !dialogue.active && !anyModalOpen()) {
     drawInteractGlow(nearestInteractable, t);
@@ -1491,6 +2060,7 @@ function triggerFinale() {
   state.visited.giftArea = true;
   saveGame();
   AudioManager.sfx("celebrate");
+  AudioManager.playTrack("birthday"); // a cute piano Happy Birthday cover, see assets/sounds/README.md
 
   finaleOverlay.classList.remove("hidden");
   if (!prefersReducedMotion) {
@@ -1523,6 +2093,10 @@ function triggerFinale() {
       confettiRunning = false;
       finaleOverlay.classList.add("hidden");
       inputState.frozen = false;
+      AudioManager.currentBgmRoom = null;
+      AudioManager.bgm.pause();
+      showOverlayScreen("title");
+      btnContinue.classList.remove("hidden");
     }
   };
 }
@@ -1550,7 +2124,7 @@ function startFreshAdventure() {
   state.buddy = "flower";
   state.room = "hub";
   state.player = { x: HUB_SPAWN.x, y: HUB_SPAWN.y, vx: 0, vy: 0, facing: "down", moving: false };
-  state.visited = { garden: false, letter: false, music: false, comfort: false, giftArea: false };
+  state.visited = { garden: false, letter: false, music: false, giftArea: false };
   state.letterOpenedOnce = false;
   showOverlayScreen("name");
   nameInput.value = "";
