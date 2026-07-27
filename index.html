@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="description" content="A little world made for you." />
+<meta name="theme-color" content="#FFB3C6" />
+<title>A Little World Made For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Caveat:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ambient floating hearts, same soft touch as the original site -->
+  <div id="floating-hearts" aria-hidden="true"></div>
+
+  <!-- shown only on very short/cramped portrait phones, via CSS media query -->
+  <div class="rotate-nudge" aria-hidden="true">
+    <span>
+      <span class="rotate-icon">📱</span>
+      A little more room helps here --<br>try rotating your phone, or just keep going, it still works either way.
+    </span>
+  </div>
+
+  <!-- ============================================================
+       TITLE SCREEN
+  ============================================================= -->
+  <section id="screen-title" class="overlay-screen active">
+    <div class="title-card">
+      <div class="title-sparkle" aria-hidden="true">✨</div>
+      <h1 class="pixel-heading">A Little World<br>Made For You</h1>
+      <p class="pixel-sub">a tiny adventure, just for you</p>
+
+      <div class="title-buttons">
+        <button id="btn-continue" class="pixel-btn primary hidden">CONTINUE ADVENTURE</button>
+        <button id="btn-start" class="pixel-btn primary">START GAME</button>
+        <button id="btn-settings" class="pixel-btn">SETTINGS</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       NAME INPUT
+  ============================================================= -->
+  <section id="screen-name" class="overlay-screen">
+    <div class="dialogue-card">
+      <p class="dialogue-eyebrow">before we begin...</p>
+      <h2 class="dialogue-heading">What is your name?</h2>
+
+      <form id="name-form" autocomplete="off">
+        <input
+          type="text"
+          id="name-input"
+          class="pixel-input"
+          maxlength="18"
+          autocomplete="off"
+          autocapitalize="words"
+          spellcheck="false"
+          placeholder="Type here"
+        />
+        <button type="submit" class="pixel-btn primary">CONTINUE</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       BUDDY SELECT
+  ============================================================= -->
+  <section id="screen-buddy" class="overlay-screen">
+    <div class="dialogue-card">
+      <p class="dialogue-eyebrow">almost there...</p>
+      <h2 class="dialogue-heading">Choose your adventure buddy</h2>
+
+      <div class="buddy-grid" id="buddy-grid">
+        <button class="buddy-card" data-buddy="flower">
+          <span class="buddy-preview-wrap">
+            <canvas class="buddy-preview" width="60" height="70" aria-hidden="true"></canvas>
+            <span class="buddy-icon-badge">🌸</span>
+          </span>
+          <span class="buddy-label">Flower Girl</span>
+        </button>
+        <button class="buddy-card" data-buddy="book">
+          <span class="buddy-preview-wrap">
+            <canvas class="buddy-preview" width="60" height="70" aria-hidden="true"></canvas>
+            <span class="buddy-icon-badge">📚</span>
+          </span>
+          <span class="buddy-label">Book Lover</span>
+        </button>
+        <button class="buddy-card" data-buddy="camera">
+          <span class="buddy-preview-wrap">
+            <canvas class="buddy-preview" width="60" height="70" aria-hidden="true"></canvas>
+            <span class="buddy-icon-badge">📷</span>
+          </span>
+          <span class="buddy-label">Photographer</span>
+        </button>
+        <button class="buddy-card" data-buddy="baker">
+          <span class="buddy-preview-wrap">
+            <canvas class="buddy-preview" width="60" height="70" aria-hidden="true"></canvas>
+            <span class="buddy-icon-badge">🧁</span>
+          </span>
+          <span class="buddy-label">Baker</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       WELCOME TRANSITION
+  ============================================================= -->
+  <section id="screen-welcome" class="overlay-screen">
+    <div class="dialogue-card welcome-card">
+      <h2 class="dialogue-heading" id="welcome-heading">Welcome 💗</h2>
+      <p class="pixel-sub">stepping into your little world...</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       GAME SCREEN
+  ============================================================= -->
+  <section id="screen-game" class="overlay-screen">
+    <div class="console-frame">
+
+      <!-- HUD -->
+      <div class="hud">
+        <span class="hud-room" id="hud-room">Hub</span>
+        <div class="hud-buttons">
+          <button id="btn-mute" class="hud-btn" title="Mute music">🔊</button>
+          <button id="btn-fullscreen" class="hud-btn" title="Fullscreen">⛶</button>
+          <button id="btn-gear" class="hud-btn" title="Settings">⚙️</button>
+        </div>
+      </div>
+
+      <!-- Canvas viewport -->
+      <div class="canvas-wrap">
+        <canvas id="game-canvas" width="400" height="240"></canvas>
+
+        <!-- interact prompt bubble, positioned by JS -->
+        <div id="interact-prompt" class="interact-prompt hidden">💬</div>
+
+        <!-- soft fade used between room transitions -->
+        <div id="room-fade" class="room-fade" aria-hidden="true"></div>
+      </div>
+
+      <!-- Dialogue box -->
+      <div id="dialogue-box" class="dialogue-box hidden">
+        <p class="dialogue-name" id="dialogue-name"></p>
+        <p class="dialogue-text" id="dialogue-text"></p>
+        <p class="dialogue-hint">tap / press Enter to continue</p>
+      </div>
+
+      <!-- Touch controls -->
+      <div class="touch-controls" id="touch-controls">
+        <div class="joystick-base" id="joystick-base">
+          <div class="joystick-thumb" id="joystick-thumb"></div>
+        </div>
+        <button class="interact-btn" id="btn-interact">💬</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       LETTER MODAL (desk in the Letter Room)
+  ============================================================= -->
+  <div id="modal-letter" class="modal hidden">
+    <div class="modal-backdrop" data-close-modal="modal-letter"></div>
+    <div class="modal-panel letter-modal-panel">
+      <button class="modal-close" data-close-modal="modal-letter">← Back</button>
+
+      <div class="envelope-scene">
+        <div id="envelope" class="envelope">
+          <div class="envelope-back"></div>
+          <div class="envelope-flap"></div>
+          <div class="envelope-front"></div>
+          <div class="envelope-seal">🤍</div>
+          <div class="envelope-paper" id="envelope-paper">
+            <p id="letter-text" class="handwritten" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-open-letter" class="pixel-btn primary">Open Letter</button>
+      <button id="btn-replay-letter" class="text-btn hidden">Read it again</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MUSIC MODAL (radio in the Music Room)
+  ============================================================= -->
+  <div id="modal-music" class="modal hidden">
+    <div class="modal-backdrop" data-close-modal="modal-music"></div>
+    <div class="modal-panel">
+      <button class="modal-close" data-close-modal="modal-music">← Back</button>
+      <p class="dialogue-eyebrow">the radio crackles to life</p>
+      <h2 class="dialogue-heading">Songs I dedicate to you 🎧</h2>
+      <div class="song-list" id="song-list"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SETTINGS MODAL
+  ============================================================= -->
+  <div id="modal-settings" class="modal hidden">
+    <div class="modal-backdrop" data-close-modal="modal-settings"></div>
+    <div class="modal-panel settings-panel">
+      <button class="modal-close" data-close-modal="modal-settings">← Back</button>
+      <h2 class="dialogue-heading">Settings</h2>
+
+      <label class="settings-row">
+        <span>Music volume</span>
+        <input type="range" id="volume-slider" min="0" max="100" value="60" />
+      </label>
+
+      <label class="settings-row">
+        <span>Mute all sound</span>
+        <input type="checkbox" id="mute-checkbox" />
+      </label>
+
+      <button id="btn-reset-save" class="text-btn danger">Reset adventure progress</button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       FINALE OVERLAY (confetti canvas + closing message)
+  ============================================================= -->
+  <div id="finale-overlay" class="finale-overlay hidden">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="finale-message">
+      <p class="handwritten" id="finale-text"></p>
+      <button id="btn-finale-close" class="pixel-btn primary">🤍</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

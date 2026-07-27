@@ -1,0 +1,862 @@
+/* =========================================================
+   TOKENS
+========================================================= */
+:root {
+  --cream:      #FFF8F4;
+  --blush:      #FFE3EC;
+  --pink:       #FFB3C6;
+  --pink-deep:  #FF97B4;
+  --rose:       #FF7DA0;
+  --gold:       #E3B873;
+  --gold-deep:  #C99A55;
+  --plum:       #5C3A47;
+  --plum-soft:  #8A6470;
+  --white:      #FFFFFF;
+  --night:      #3A2E4D;
+  --night-soft: #5A4A72;
+
+  --font-pixel:   "Press Start 2P", monospace;
+  --font-body:    "Quicksand", sans-serif;
+  --font-hand:    "Caveat", cursive;
+
+  --shadow-soft: 0 20px 40px -12px rgba(92, 58, 71, 0.3);
+  --radius-lg: 24px;
+  --radius-md: 14px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 10%, #FFE9F0 0%, var(--cream) 45%, var(--cream) 100%);
+  font-family: var(--font-body);
+  color: var(--plum);
+  overflow: hidden;
+}
+
+button {
+  font-family: var(--font-body);
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+input {
+  font-family: var(--font-body);
+}
+
+:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.hidden { display: none !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* =========================================================
+   AMBIENT FLOATING HEARTS
+========================================================= */
+#floating-hearts {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.floating-heart {
+  position: absolute;
+  bottom: -10%;
+  font-size: 18px;
+  color: var(--pink);
+  opacity: 0.5;
+  animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.5; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-110vh) translateX(20px) rotate(25deg); opacity: 0; }
+}
+
+/* =========================================================
+   OVERLAY SCREEN SYSTEM
+   Every "screen" (title, name entry, buddy select, welcome,
+   the game itself) is a full-viewport layer. Only one is
+   ever visible at a time, toggled by JS via .active.
+========================================================= */
+.overlay-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+            max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+}
+
+.overlay-screen.active {
+  display: flex;
+  animation: screenIn 0.5s ease both;
+}
+
+@keyframes screenIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.pixel-heading {
+  font-family: var(--font-pixel);
+  font-size: clamp(18px, 5vw, 26px);
+  line-height: 1.6;
+  color: var(--plum);
+  text-shadow: 3px 3px 0 var(--blush);
+  margin: 0 0 14px;
+}
+
+.pixel-sub {
+  font-size: 13px;
+  color: var(--plum-soft);
+  margin: 0 0 6px;
+}
+
+.dialogue-eyebrow {
+  font-family: var(--font-pixel);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--rose);
+  margin: 0 0 12px;
+}
+
+.dialogue-heading {
+  font-family: var(--font-pixel);
+  font-size: clamp(14px, 4vw, 18px);
+  line-height: 1.7;
+  color: var(--plum);
+  margin: 0 0 20px;
+}
+
+/* pixel-styled buttons, used everywhere outside the letter/song cards */
+.pixel-btn {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  line-height: 1;
+  padding: 16px 20px;
+  color: var(--plum);
+  background: var(--white);
+  border: 3px solid var(--plum);
+  border-radius: 10px;
+  box-shadow: 4px 4px 0 var(--plum);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pixel-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--plum);
+}
+
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--plum);
+}
+
+.pixel-btn.primary {
+  color: var(--white);
+  background: linear-gradient(135deg, var(--rose), var(--pink-deep));
+}
+
+.text-btn {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--plum-soft);
+  padding: 6px 10px;
+  border-radius: 999px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.text-btn:hover {
+  color: var(--rose);
+  background: var(--blush);
+}
+
+.text-btn.danger:hover {
+  color: #C24B5F;
+  background: #FFE0E4;
+}
+
+/* =========================================================
+   TITLE SCREEN
+========================================================= */
+.title-card {
+  text-align: center;
+  max-width: 420px;
+}
+
+.title-sparkle {
+  font-size: 30px;
+  animation: sparkleFloat 2.6s ease-in-out infinite;
+}
+
+@keyframes sparkleFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-8px) rotate(8deg); }
+}
+
+.title-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+/* =========================================================
+   DIALOGUE CARD (name entry / buddy select / welcome)
+========================================================= */
+.dialogue-card {
+  background: var(--white);
+  border: 3px solid var(--plum);
+  border-radius: var(--radius-lg);
+  box-shadow: 6px 6px 0 var(--plum);
+  padding: 30px 26px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.pixel-input {
+  display: block;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 14px;
+  border: 3px solid var(--plum);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  background: var(--cream);
+  color: var(--plum);
+  text-align: center;
+}
+
+.buddy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 6px;
+  max-height: min(50vh, 360px);
+  overflow-y: auto;
+  padding: 4px 4px 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.buddy-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 10px;
+  border: 3px solid var(--plum);
+  border-radius: var(--radius-md);
+  background: var(--blush);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.buddy-card:hover {
+  transform: translateY(-4px);
+  background: var(--pink);
+}
+
+.buddy-card.selected {
+  background: var(--rose);
+  color: var(--white);
+}
+
+.buddy-preview-wrap {
+  position: relative;
+  width: 60px;
+  height: 70px;
+}
+
+.buddy-preview-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -4px -2px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  z-index: -1;
+  transition: background 0.2s ease;
+}
+
+.buddy-card.selected .buddy-preview-wrap::before {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.buddy-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.buddy-icon-badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  font-size: 16px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+}
+
+.buddy-label {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.welcome-card {
+  animation: welcomePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes welcomePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.03); }
+}
+
+/* =========================================================
+   GAME SCREEN -- CONSOLE FRAME
+   A cute pastel "handheld" bezel around the canvas, so the
+   game reads as an intentional little device rather than a
+   bare rectangle on any screen size.
+========================================================= */
+#screen-game { padding: 12px; }
+
+.console-frame {
+  position: relative;
+  width: 100%;
+  max-width: 620px;
+  background: linear-gradient(160deg, var(--white), var(--blush));
+  border: 4px solid var(--plum);
+  border-radius: 22px;
+  box-shadow: var(--shadow-soft);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+}
+
+.hud-room {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--plum);
+}
+
+.hud-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.hud-btn {
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+  border-radius: 8px;
+  background: var(--white);
+  border: 2px solid var(--plum);
+  transition: transform 0.15s ease;
+}
+
+.hud-btn:hover {
+  transform: translateY(-2px);
+}
+
+.hud-btn:active {
+  transform: translateY(1px);
+}
+
+.canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 400 / 240;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 3px solid var(--plum);
+  background: #000;
+}
+
+#game-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.interact-prompt {
+  position: absolute;
+  transform: translate(-50%, -140%);
+  font-size: 18px;
+  animation: promptBob 0.9s ease-in-out infinite;
+  pointer-events: none;
+  text-shadow: 0 2px 3px rgba(0,0,0,0.35);
+  transition: opacity 0.15s ease;
+}
+
+@keyframes promptBob {
+  0%, 100% { transform: translate(-50%, -140%); }
+  50%      { transform: translate(-50%, -160%); }
+}
+
+/* Fades the whole canvas view out/in on room transitions, so switching
+   rooms reads as a soft cut rather than an instant snap. Opacity is
+   driven from JS (see goToRoom in game.js). */
+.room-fade {
+  position: absolute;
+  inset: 0;
+  background: var(--cream);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+  z-index: 5;
+}
+
+.room-fade.active {
+  opacity: 1;
+}
+
+/* Rotate-device nudge for very short/cramped portrait phones, so the
+   console frame + touch controls always have room to breathe. */
+.rotate-nudge {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  background: var(--cream);
+  font-family: var(--font-body);
+  color: var(--plum);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.rotate-nudge .rotate-icon {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 10px;
+  animation: rotateHint 1.8s ease-in-out infinite;
+}
+
+@keyframes rotateHint {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-90deg); }
+}
+
+@media (orientation: portrait) and (max-height: 480px) {
+  .rotate-nudge { display: flex; }
+}
+
+/* =========================================================
+   DIALOGUE BOX (in-game)
+========================================================= */
+.dialogue-box {
+  background: var(--white);
+  border: 3px solid var(--plum);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: 4px 4px 0 var(--plum);
+}
+
+.dialogue-name {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: var(--rose);
+  margin: 0 0 8px;
+}
+
+.dialogue-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--plum);
+  margin: 0 0 6px;
+  min-height: 1.5em;
+}
+
+.dialogue-hint {
+  margin: 0;
+  font-size: 10px;
+  color: var(--plum-soft);
+  text-align: right;
+  animation: tapPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tapPulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 1; }
+}
+
+/* =========================================================
+   TOUCH CONTROLS
+   Shown only on touch/coarse-pointer devices via JS adding
+   .touch-enabled to <body>.
+========================================================= */
+.touch-controls {
+  display: none;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 6px 10px 2px;
+}
+
+body.touch-enabled .touch-controls {
+  display: flex;
+}
+
+.joystick-base {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: rgba(255, 179, 198, 0.35);
+  border: 2px solid var(--plum);
+  touch-action: none;
+}
+
+.joystick-thumb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--rose);
+  border: 2px solid var(--plum);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.interact-btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  font-size: 22px;
+  background: var(--white);
+  border: 2px solid var(--plum);
+  box-shadow: 3px 3px 0 var(--plum);
+  touch-action: none;
+}
+
+.interact-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--plum);
+}
+
+/* =========================================================
+   MODALS (letter, music, settings)
+========================================================= */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(92, 58, 71, 0.45);
+}
+
+.modal-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--cream);
+  border: 3px solid var(--plum);
+  border-radius: var(--radius-lg);
+  box-shadow: 6px 6px 0 var(--plum);
+  padding: 26px 22px;
+  text-align: center;
+}
+
+.modal-close {
+  display: block;
+  margin: 0 0 18px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--plum-soft);
+  text-align: left;
+}
+
+.modal-close:hover {
+  color: var(--rose);
+}
+
+/* --- letter modal: envelope + growing paper, same mechanism
+       as the original site --- */
+.envelope-scene {
+  margin: 10px auto 16px;
+  perspective: 1000px;
+}
+
+.envelope {
+  position: relative;
+  width: 240px;
+  height: 156px;
+  margin: 0 auto;
+}
+
+.envelope-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  background: linear-gradient(160deg, var(--blush), var(--pink));
+  box-shadow: var(--shadow-soft);
+}
+
+.envelope-front {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 100%;
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(160deg, var(--white), var(--blush));
+  clip-path: polygon(0 22%, 50% 55%, 100% 22%, 100% 100%, 0 100%);
+  z-index: 2;
+}
+
+.envelope-flap {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 55%;
+  background: linear-gradient(200deg, var(--pink-deep), var(--rose));
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: top center;
+  transition: transform 0.8s cubic-bezier(.34,1.2,.64,1);
+  z-index: 3;
+  border-radius: 10px 10px 0 0;
+}
+
+.envelope-seal {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  z-index: 4;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.envelope-paper {
+  position: absolute;
+  left: 50%;
+  bottom: 6%;
+  width: 84%;
+  height: 82%;
+  background: var(--white);
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(92,58,71,0.2);
+  padding: 18px 16px;
+  text-align: left;
+  overflow: hidden;
+  transform: translateX(-50%) translateY(6%);
+  transition: transform 0.9s cubic-bezier(.22,1,.36,1), width 0.5s ease, height 0.5s ease;
+  z-index: 1;
+}
+
+.handwritten {
+  font-family: var(--font-hand);
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--plum);
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.handwritten.typing::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--rose);
+  animation: cursorBlink 0.9s step-end infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+.envelope.open .envelope-flap {
+  transform: rotateX(180deg);
+}
+
+.envelope.open .envelope-seal {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+.envelope.open .envelope-paper {
+  width: min(94%, 380px);
+  height: min(52vh, 420px);
+  transform: translateX(-50%) translateY(-64%);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  z-index: 5;
+}
+
+/* --- music modal: song list, same shape as the original site --- */
+.song-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+  text-align: left;
+}
+
+.song-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--white);
+  border-left: 4px solid var(--gold);
+  box-shadow: 0 8px 18px -12px rgba(92,58,71,0.3);
+}
+
+.song-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.song-body h3 {
+  margin: 0 0 2px;
+  font-size: 15.5px;
+  color: var(--plum);
+}
+
+.song-artist {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--rose);
+  font-weight: 700;
+}
+
+.song-body p.song-note {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--plum-soft);
+  line-height: 1.4;
+}
+
+.listen-btn {
+  display: inline-block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--rose);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--blush);
+}
+
+.listen-btn.is-placeholder {
+  opacity: 0.55;
+}
+
+/* --- settings modal --- */
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 18px 0;
+  font-size: 14px;
+  text-align: left;
+}
+
+.settings-row input[type="range"] {
+  flex: 1;
+  max-width: 160px;
+}
+
+/* =========================================================
+   FINALE OVERLAY
+========================================================= */
+.finale-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: radial-gradient(circle at 50% 30%, #FFE9F0 0%, var(--cream) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+#confetti-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.finale-message {
+  position: relative;
+  z-index: 1;
+  max-width: 440px;
+  background: var(--white);
+  border: 3px solid var(--plum);
+  border-radius: var(--radius-lg);
+  box-shadow: 6px 6px 0 var(--plum);
+  padding: 30px 26px;
+  text-align: center;
+}
+
+.finale-message .handwritten {
+  font-size: 22px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 380px) {
+  .envelope { width: 200px; height: 132px; }
+  .dialogue-card { padding: 24px 18px; }
+  .buddy-preview-wrap { width: 50px; height: 60px; }
+}
+
+@media (max-height: 560px) and (orientation: landscape) {
+  .console-frame { max-width: 520px; }
+  .touch-controls { padding-bottom: env(safe-area-inset-bottom); }
+}

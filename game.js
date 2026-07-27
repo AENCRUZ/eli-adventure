@@ -1,0 +1,1633 @@
+/* =========================================================================
+   CONFIG
+   Everything personal and easy-to-customize lives here. Add messages,
+   swap song info, or change the letter without touching any logic below.
+========================================================================= */
+const CONFIG = {
+  // Shown if the player leaves the name box empty.
+  nameFallback: "friend",
+
+  // The name signed at the bottom of the letter -- also used as the label
+  // for the NPC you meet in the hub.
+  senderName: "Anji",
+
+  // The Letter Room's desk. Blank lines are preserved (white-space: pre-wrap).
+  letter: `Dear Eli,
+
+Happy birthday, Eli. 🤍
+
+I hope you have a really wonderful day today. I hope you get to rest, smile, and feel celebrated because you deserve it.
+
+It's kind of funny because it's only been a month since we started talking, but I'm really glad that I got the chance to meet you. I didn't expect to find someone who was so easy to talk to and someone I genuinely enjoy getting to know.
+
+I love hearing about your little stories, your thoughts, your dreams, and the things that make you happy. I admire how passionate and hardworking you are, and how much you care about the people around you. You have such a warm heart, and I hope you know that it's something really special.
+
+I know I might not always be the most showy person when it comes to expressing how I feel. Sometimes I struggle with saying things out loud, but I hope you know that I appreciate you more than I probably show. The truth is, I always miss you. I miss talking to you, hearing about your day, and sharing little moments with you. Even the simplest messages from you can make me smile.
+
+Thank you for the conversations, the random stories, the laughs, the late-night talks, and the little moments that made this past month special. Thank you for letting me get to know you.
+
+For this new chapter of your life, I hope you continue to grow, achieve the things you dream of, and find happiness in the little moments too. I hope you remember to take care of yourself the same way you take care of everyone else.
+
+I'm really happy that I met you, Eli. I'm excited to keep knowing you more and to see all the amazing things you're going to do.
+
+Happy birthday again. I hope your day is as lovely as you are. 🤍
+
+Oh, and one more thing. This is the little project I was secretly working on whenever we weren't talking and I had some free time. I'd work on it little by little whenever I could, and now I'm really happy I finally get to share it with you. I hope it makes you smile. 🤍
+
+
+With love,
+Anji`,
+
+  // The Flower Garden. Walking up to any flower reveals one of these, in a
+  // shuffled order that never repeats one twice before all the others have
+  // had a turn.
+  reasons: [
+    "Because I love how you can turn a simple conversation into something I don't want to end.",
+    "Because your little quirks make you even more adorable.",
+    "Because I admire the way you care so deeply about the people you love.",
+    "Because you have this quiet strength that I hope you see in yourself too.",
+    "Because I love the way you share pieces of yourself with me.",
+    "Because you make me look forward to checking my messages.",
+    "Because you make me want to slow down and enjoy getting to know someone.",
+    "Because I love seeing the passion you have for your dreams.",
+    "Because you make me feel lucky that our paths crossed.",
+    "Because you're Eli -- and there's no one else quite like you.",
+  ],
+
+  // The Music Room's radio. Leave a url as "#" and it shows as a
+  // placeholder instead of a dead link.
+  songs: [
+    {
+      title: "Song Title Here",
+      artist: "Anji (cover)",
+      note: "A short line about why this one's for her.",
+      url: "#",
+    },
+    {
+      title: "Another Song Title",
+      artist: "Anji (cover)",
+      note: "A short line about why this one's for her.",
+      url: "#",
+    },
+  ],
+
+  // The Comfort Room's stars -- fixed messages, one per star, shown in order.
+  comfortMessages: [
+    "For days when you're tired. 🌙",
+    "For days when you need comfort.",
+    "For days you just need reminding: you are loved, exactly as you are.",
+  ],
+
+  // What the NPC version of the sender says in the hub.
+  npcDialogue: [
+    "Hey, you made it here.",
+    "I wanted to make something that felt like a little place just for you.",
+    "There are a few little rooms around here. Take your time exploring them -- there's no rush.",
+  ],
+
+  // What the locked gate says before all four rooms are visited.
+  gateLockedMessage: "The gate won't budge yet. Maybe there's a little more to see first. 🌷",
+
+  // Shown when the gift in the Final Gift Area is opened. {name} is
+  // replaced with whatever the player typed in at the start.
+  finaleMessage: `Happy birthday, {name}.
+
+Thank you for making it all the way here.
+
+Every little room in this world was made with you in mind.
+
+I hope today, and every day after, feels this soft and this loved.`,
+
+  // A second, smaller note shown right after the finale message.
+  secretMessage: "Thank you for existing. I'm grateful I met you. 🤍",
+
+  // Player character options. Colors are used to tint the placeholder
+  // pixel sprite until you swap in real spritesheets.
+  buddies: {
+    flower: { label: "Flower Girl", icon: "🌸", color: "#FF97B4" },
+    book:   { label: "Book Lover",  icon: "📚", color: "#8FB3D9" },
+    camera: { label: "Photographer", icon: "📷", color: "#C9A6E0" },
+    baker:  { label: "Baker",       icon: "🧁", color: "#F5C77E" },
+  },
+};
+
+/* =========================================================================
+   CONSTANTS
+========================================================================= */
+const GAME_W = 400;
+const GAME_H = 240;
+const TILE = 20;
+const PLAYER_W = 14;
+const PLAYER_H = 18;
+const PLAYER_SPEED = 78; // px per second
+const PLAYER_ACCEL = 16; // how quickly velocity eases toward the input direction
+const INTERACT_RADIUS = 30;
+const DOOR_HOLD_TIME = 0.12; // seconds a door must be overlapped before it fires
+const SAVE_KEY = "birthdayGameSave";
+
+/* =========================================================================
+   DOM REFERENCES
+========================================================================= */
+const screens = {
+  title: document.getElementById("screen-title"),
+  name: document.getElementById("screen-name"),
+  buddy: document.getElementById("screen-buddy"),
+  welcome: document.getElementById("screen-welcome"),
+  game: document.getElementById("screen-game"),
+};
+
+const canvas = document.getElementById("game-canvas");
+const ctx = canvas.getContext("2d");
+
+const hudRoomEl = document.getElementById("hud-room");
+const interactPromptEl = document.getElementById("interact-prompt");
+const dialogueBoxEl = document.getElementById("dialogue-box");
+const dialogueNameEl = document.getElementById("dialogue-name");
+const dialogueTextEl = document.getElementById("dialogue-text");
+
+const joystickBase = document.getElementById("joystick-base");
+const joystickThumb = document.getElementById("joystick-thumb");
+const btnInteract = document.getElementById("btn-interact");
+
+/* =========================================================================
+   GAME STATE
+========================================================================= */
+const state = {
+  name: "",
+  buddy: "flower",
+  room: "hub",
+  player: { x: 200, y: 190, vx: 0, vy: 0, facing: "down", moving: false },
+  visited: { garden: false, letter: false, music: false, comfort: false, giftArea: false },
+  muted: false,
+  volume: 0.6,
+  letterOpenedOnce: false,
+};
+
+function playerName() {
+  return state.name && state.name.trim() ? state.name.trim() : CONFIG.nameFallback;
+}
+
+function fillTemplate(text) {
+  return text.replace(/\{name\}/g, playerName());
+}
+
+/* =========================================================================
+   SAVE / LOAD
+========================================================================= */
+function saveGame() {
+  try {
+    const payload = {
+      name: state.name,
+      buddy: state.buddy,
+      room: state.room,
+      player: { x: state.player.x, y: state.player.y },
+      visited: state.visited,
+      muted: state.muted,
+      volume: state.volume,
+      letterOpenedOnce: state.letterOpenedOnce,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
+  } catch (e) {
+    // localStorage may be unavailable (private browsing etc.) -- fail quietly
+  }
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    return null;
+  }
+}
+
+function clearSave() {
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch (e) {
+    /* ignore */
+  }
+}
+
+/* =========================================================================
+   SCREEN SWITCHING (title / name / buddy / welcome / game)
+========================================================================= */
+function showOverlayScreen(id) {
+  Object.values(screens).forEach((el) => el.classList.remove("active"));
+  screens[id].classList.add("active");
+}
+
+/* =========================================================================
+   AUDIO MANAGER
+   Wired up to expected file paths under assets/sounds/. If a file isn't
+   there yet, playback just fails quietly -- nothing breaks.
+========================================================================= */
+const AudioManager = {
+  bgm: new Audio(),
+  currentBgmRoom: null,
+
+  init() {
+    this.bgm.loop = true;
+    this.applyVolume();
+  },
+
+  applyVolume() {
+    this.bgm.volume = state.muted ? 0 : state.volume;
+  },
+
+  playRoomMusic(roomId) {
+    if (this.currentBgmRoom === roomId) return;
+    this.currentBgmRoom = roomId;
+    this.bgm.pause();
+    this.bgm.src = `assets/sounds/bgm-${roomId}.mp3`;
+    this.applyVolume();
+    this.bgm.play().catch(() => {
+      /* file not added yet -- fine, silence is okay */
+    });
+  },
+
+  sfx(name) {
+    if (state.muted) return;
+    const audio = new Audio(`assets/sounds/sfx-${name}.mp3`);
+    audio.volume = state.volume;
+    audio.play().catch(() => {});
+  },
+
+  setMuted(muted) {
+    state.muted = muted;
+    this.applyVolume();
+    saveGame();
+  },
+
+  setVolume(v) {
+    state.volume = v;
+    this.applyVolume();
+    saveGame();
+  },
+};
+
+/* =========================================================================
+   AMBIENT FLOATING HEARTS (same touch as the original site)
+========================================================================= */
+const heartsContainer = document.getElementById("floating-hearts");
+const heartSymbols = ["🤍", "💗", "✨"];
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function spawnHeart() {
+  const heart = document.createElement("span");
+  heart.className = "floating-heart";
+  heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+  heart.style.left = `${Math.random() * 100}%`;
+  heart.style.fontSize = `${12 + Math.random() * 14}px`;
+  const duration = 9 + Math.random() * 7;
+  heart.style.animationDuration = `${duration}s`;
+  heartsContainer.appendChild(heart);
+  setTimeout(() => heart.remove(), duration * 1000);
+}
+
+if (!prefersReducedMotion) {
+  setInterval(spawnHeart, 2200);
+}
+
+/* =========================================================================
+   GENERIC TYPEWRITER HELPER
+   Shared by the dialogue box, the letter, and the finale message.
+========================================================================= */
+function runTypewriter(el, text, { speed = 24, cursor = true, onDone } = {}) {
+  el.textContent = "";
+  if (cursor) el.classList.add("typing");
+
+  if (prefersReducedMotion) {
+    el.textContent = text;
+    el.classList.remove("typing");
+    if (onDone) onDone();
+    return { cancel() {} };
+  }
+
+  let i = 0;
+  let cancelled = false;
+
+  function step() {
+    if (cancelled) return;
+    if (i < text.length) {
+      el.textContent += text.charAt(i);
+      i++;
+      setTimeout(step, speed);
+    } else {
+      el.classList.remove("typing");
+      if (onDone) onDone();
+    }
+  }
+  step();
+
+  return {
+    cancel() {
+      cancelled = true;
+    },
+  };
+}
+
+/* =========================================================================
+   DIALOGUE BOX (in-game)
+========================================================================= */
+const dialogue = {
+  queue: [],
+  active: false,
+  typer: null,
+  currentLine: "",
+
+  show(name, lines) {
+    this.queue = Array.isArray(lines) ? [...lines] : [lines];
+    this.active = true;
+    inputState.frozen = true;
+    dialogueBoxEl.classList.remove("hidden");
+    dialogueNameEl.textContent = name || "";
+    this.next();
+  },
+
+  next() {
+    if (this.queue.length === 0) {
+      this.close();
+      return;
+    }
+    this.currentLine = this.queue.shift();
+    if (this.typer) this.typer.cancel();
+    this.typer = runTypewriter(dialogueTextEl, this.currentLine, { speed: 20 });
+  },
+
+  advance() {
+    if (!this.active) return;
+    // if still typing, finish the line instantly on this tap rather than
+    // skipping it -- the next tap moves on to the following line
+    if (dialogueTextEl.classList.contains("typing")) {
+      if (this.typer) this.typer.cancel();
+      dialogueTextEl.textContent = this.currentLine;
+      dialogueTextEl.classList.remove("typing");
+      return;
+    }
+    this.next();
+  },
+
+  close() {
+    this.active = false;
+    inputState.frozen = false;
+    dialogueBoxEl.classList.add("hidden");
+  },
+};
+
+/* =========================================================================
+   ROOMS
+   Each room is a single (non-scrolling) 400x240 screen. Doors are
+   walk-into triggers; interactables need an explicit interact press.
+========================================================================= */
+const HUB_SPAWN = { x: 200, y: 190 };
+const ROOM_SPAWN = { x: 200, y: 50 };
+
+function exitDoor(target) {
+  return { x: 180, y: 224, w: 40, h: 16, label: "🚪", target, spawn: HUB_SPAWN, auto: true };
+}
+
+const rooms = {
+  hub: {
+    label: "The Hub",
+    theme: { a: "#DDEFCB", b: "#CFE6B8" },
+    obstacles: [
+      { x: 20, y: 20, w: 28, h: 22 },
+      { x: 352, y: 20, w: 28, h: 22 },
+      { x: 20, y: 190, w: 28, h: 22 },
+      { x: 352, y: 190, w: 28, h: 22 },
+      { x: 182, y: 106, w: 36, h: 30, round: true }, // little fountain
+    ],
+    doors: [
+      { x: 40, y: 0, w: 40, h: 14, label: "🌸", target: "garden", spawn: ROOM_SPAWN, auto: true },
+      { x: 320, y: 0, w: 40, h: 14, label: "💌", target: "letter", spawn: ROOM_SPAWN, auto: true },
+      { x: 0, y: 100, w: 14, h: 40, label: "🎵", target: "music", spawn: ROOM_SPAWN, auto: true },
+      { x: 386, y: 100, w: 14, h: 40, label: "🌙", target: "comfort", spawn: ROOM_SPAWN, auto: true },
+      {
+        x: 180, y: 0, w: 40, h: 14, label: "🎁", target: "giftArea", spawn: ROOM_SPAWN, auto: true,
+        gate: true,
+      },
+    ],
+    interactables: [
+      { x: 100, y: 150, w: 16, h: 20, type: "npc", label: "" },
+    ],
+  },
+
+  garden: {
+    label: "Flower Garden",
+    theme: { a: "#EAF6D8", b: "#DDEFC0" },
+    obstacles: [
+      { x: 30, y: 30, w: 24, h: 20 },
+      { x: 340, y: 190, w: 24, h: 20 },
+    ],
+    doors: [exitDoor("hub")],
+    interactables: [
+      { x: 60, y: 70, w: 16, h: 16, type: "flower", label: "🌸" },
+      { x: 150, y: 60, w: 16, h: 16, type: "flower", label: "🌷" },
+      { x: 240, y: 90, w: 16, h: 16, type: "flower", label: "🌼" },
+      { x: 320, y: 70, w: 16, h: 16, type: "flower", label: "🌸" },
+      { x: 90, y: 160, w: 16, h: 16, type: "flower", label: "🌷" },
+      { x: 280, y: 170, w: 16, h: 16, type: "flower", label: "🌼" },
+    ],
+  },
+
+  letter: {
+    label: "Letter Room",
+    theme: { a: "#F7EAD8", b: "#EFDCC1" },
+    obstacles: [
+      { x: 0, y: 60, w: 20, h: 100 },
+      { x: 380, y: 60, w: 20, h: 100 },
+    ],
+    doors: [exitDoor("hub")],
+    interactables: [
+      { x: 176, y: 70, w: 48, h: 30, type: "desk", label: "✍️" },
+    ],
+  },
+
+  music: {
+    label: "Music Room",
+    theme: { a: "#FBE6ED", b: "#F6D2E0" },
+    obstacles: [
+      { x: 0, y: 60, w: 20, h: 100 },
+      { x: 380, y: 60, w: 20, h: 100 },
+    ],
+    doors: [exitDoor("hub")],
+    interactables: [
+      { x: 180, y: 70, w: 40, h: 40, type: "radio", label: "📻" },
+    ],
+  },
+
+  comfort: {
+    label: "Comfort Room",
+    theme: { a: "#3A2E4D", b: "#463855", night: true },
+    obstacles: [],
+    doors: [exitDoor("hub")],
+    interactables: [
+      { x: 80, y: 60, w: 16, h: 16, type: "star", label: "⭐", messageIndex: 0 },
+      { x: 200, y: 90, w: 16, h: 16, type: "star", label: "⭐", messageIndex: 1 },
+      { x: 310, y: 60, w: 16, h: 16, type: "star", label: "⭐", messageIndex: 2 },
+    ],
+  },
+
+  giftArea: {
+    label: "Final Gift Area",
+    theme: { a: "#FFEAF1", b: "#FFD9E6" },
+    obstacles: [],
+    doors: [exitDoor("hub")],
+    interactables: [
+      { x: 178, y: 90, w: 44, h: 50, type: "gift", label: "🎁" },
+    ],
+  },
+};
+
+/* =========================================================================
+   INPUT
+========================================================================= */
+const inputState = {
+  keys: new Set(),
+  joyX: 0,
+  joyY: 0,
+  frozen: false, // true while a dialogue/modal has control
+};
+
+window.addEventListener("keydown", (e) => {
+  const isGameActive = screens.game.classList.contains("active");
+  const focusedTag = document.activeElement && document.activeElement.tagName;
+  const typingInField = focusedTag === "INPUT" || focusedTag === "TEXTAREA";
+  const k = e.key.toLowerCase();
+
+  if (k === "escape") {
+    closeTopModal();
+    return;
+  }
+
+  if (!isGameActive || typingInField) return;
+
+  if (["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"].includes(k)) {
+    inputState.keys.add(k);
+    e.preventDefault();
+  }
+  if (k === "enter" || k === " " || k === "e") {
+    handleInteractPress();
+  }
+});
+
+window.addEventListener("keyup", (e) => {
+  inputState.keys.delete(e.key.toLowerCase());
+});
+
+function readKeyboardVector() {
+  let x = 0, y = 0;
+  if (inputState.keys.has("w") || inputState.keys.has("arrowup")) y -= 1;
+  if (inputState.keys.has("s") || inputState.keys.has("arrowdown")) y += 1;
+  if (inputState.keys.has("a") || inputState.keys.has("arrowleft")) x -= 1;
+  if (inputState.keys.has("d") || inputState.keys.has("arrowright")) x += 1;
+  return { x, y };
+}
+
+/* --- touch joystick --- */
+let joystickTouchId = null;
+const JOY_RADIUS = 40;
+
+function joystickStart(clientX, clientY, id) {
+  joystickTouchId = id;
+  // Anchor to the base's real center (not the touch-down point) so the
+  // thumb always represents an actual direction from a fixed origin,
+  // rather than drifting depending on where the finger first lands.
+  const rect = joystickBase.getBoundingClientRect();
+  joystickBase.dataset.originX = rect.left + rect.width / 2;
+  joystickBase.dataset.originY = rect.top + rect.height / 2;
+  joystickMove(clientX, clientY);
+}
+
+function joystickMove(clientX, clientY) {
+  const originX = parseFloat(joystickBase.dataset.originX || "0");
+  const originY = parseFloat(joystickBase.dataset.originY || "0");
+  let dx = clientX - originX;
+  let dy = clientY - originY;
+  const dist = Math.min(Math.hypot(dx, dy), JOY_RADIUS);
+  const angle = Math.atan2(dy, dx);
+  dx = Math.cos(angle) * dist;
+  dy = Math.sin(angle) * dist;
+  joystickThumb.style.transform = `translate(${dx - 21}px, ${dy - 21}px)`;
+  inputState.joyX = dx / JOY_RADIUS;
+  inputState.joyY = dy / JOY_RADIUS;
+}
+
+function joystickEnd() {
+  joystickTouchId = null;
+  joystickThumb.style.transform = "translate(-50%, -50%)";
+  inputState.joyX = 0;
+  inputState.joyY = 0;
+}
+
+joystickBase.addEventListener("touchstart", (e) => {
+  const t = e.changedTouches[0];
+  joystickStart(t.clientX, t.clientY, t.identifier);
+  e.preventDefault();
+}, { passive: false });
+
+joystickBase.addEventListener("touchmove", (e) => {
+  for (const t of e.changedTouches) {
+    if (t.identifier === joystickTouchId) joystickMove(t.clientX, t.clientY);
+  }
+  e.preventDefault();
+}, { passive: false });
+
+window.addEventListener("touchend", (e) => {
+  for (const t of e.changedTouches) {
+    if (t.identifier === joystickTouchId) joystickEnd();
+  }
+});
+
+// mouse fallback for the joystick, handy when testing on desktop
+let joystickMouseDown = false;
+joystickBase.addEventListener("mousedown", (e) => {
+  joystickMouseDown = true;
+  joystickStart(e.clientX, e.clientY, "mouse");
+});
+window.addEventListener("mousemove", (e) => {
+  if (joystickMouseDown) joystickMove(e.clientX, e.clientY);
+});
+window.addEventListener("mouseup", () => {
+  if (joystickMouseDown) {
+    joystickMouseDown = false;
+    joystickEnd();
+  }
+});
+
+btnInteract.addEventListener("click", () => handleInteractPress());
+
+// detect touch devices to reveal the on-screen controls
+if ("ontouchstart" in window || navigator.maxTouchPoints > 0) {
+  document.body.classList.add("touch-enabled");
+}
+
+/* =========================================================================
+   INTERACTION HANDLING
+========================================================================= */
+let nearestInteractable = null;
+
+function handleInteractPress() {
+  if (dialogue.active) {
+    dialogue.advance();
+    return;
+  }
+  if (anyModalOpen()) return;
+  if (!nearestInteractable) return;
+
+  const obj = nearestInteractable;
+
+  switch (obj.type) {
+    case "npc":
+      dialogue.show(CONFIG.senderName, CONFIG.npcDialogue);
+      break;
+
+    case "flower":
+      obj.poppedAt = performance.now();
+      showNextReason();
+      break;
+
+    case "desk":
+      openLetterModal();
+      break;
+
+    case "radio":
+      openModal("modal-music");
+      AudioManager.sfx("interact");
+      break;
+
+    case "star":
+      obj.poppedAt = performance.now();
+      dialogue.show("", [CONFIG.comfortMessages[obj.messageIndex] || "🤍"]);
+      AudioManager.sfx("interact");
+      break;
+
+    case "gift":
+      triggerFinale();
+      break;
+  }
+}
+
+/* --- flower garden: shuffled reason bag, same logic as the original site --- */
+let reasonBag = [];
+function showNextReason() {
+  if (reasonBag.length === 0) {
+    reasonBag = [...CONFIG.reasons];
+    for (let i = reasonBag.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [reasonBag[i], reasonBag[j]] = [reasonBag[j], reasonBag[i]];
+    }
+  }
+  const reason = reasonBag.pop();
+  AudioManager.sfx("interact");
+  dialogue.show("", [reason]);
+}
+
+/* =========================================================================
+   MODALS (letter / music / settings)
+========================================================================= */
+function anyModalOpen() {
+  return document.querySelector(".modal:not(.hidden)") !== null;
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.remove("hidden");
+  inputState.frozen = true;
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.add("hidden");
+  inputState.frozen = false;
+}
+
+function closeTopModal() {
+  const open = document.querySelector(".modal:not(.hidden)");
+  if (open) closeModal(open.id);
+}
+
+document.querySelectorAll("[data-close-modal]").forEach((el) => {
+  el.addEventListener("click", () => closeModal(el.dataset.closeModal));
+});
+
+/* --- letter modal: envelope + growing paper --- */
+const envelopeEl = document.getElementById("envelope");
+const envelopePaperEl = document.getElementById("envelope-paper");
+const letterTextEl = document.getElementById("letter-text");
+const btnOpenLetter = document.getElementById("btn-open-letter");
+const btnReplayLetter = document.getElementById("btn-replay-letter");
+
+function openLetterModal() {
+  openModal("modal-letter");
+  AudioManager.playRoomMusic("letter"); // soft music cue, per the brief
+
+  if (state.letterOpenedOnce) {
+    // already read before -- show it fully open, no need to replay the wait
+    envelopeEl.classList.add("open");
+    letterTextEl.classList.remove("typing");
+    letterTextEl.textContent = CONFIG.letter;
+    btnOpenLetter.classList.add("hidden");
+    btnReplayLetter.classList.remove("hidden");
+    return;
+  }
+
+  envelopeEl.classList.remove("open");
+  letterTextEl.textContent = "";
+  btnOpenLetter.classList.remove("hidden");
+  btnOpenLetter.disabled = false;
+  btnOpenLetter.style.opacity = "1";
+  btnReplayLetter.classList.add("hidden");
+}
+
+btnOpenLetter.addEventListener("click", () => {
+  if (envelopeEl.classList.contains("open")) return;
+  envelopeEl.classList.add("open");
+  btnOpenLetter.disabled = true;
+  btnOpenLetter.style.opacity = "0.5";
+
+  setTimeout(() => {
+    typeLetter();
+  }, prefersReducedMotion ? 0 : 500);
+});
+
+btnReplayLetter.addEventListener("click", () => typeLetter());
+
+function typeLetter() {
+  const text = CONFIG.letter;
+  const speed = 22;
+
+  btnReplayLetter.classList.add("hidden");
+
+  if (prefersReducedMotion) {
+    letterTextEl.textContent = text;
+    btnOpenLetter.classList.add("hidden");
+    btnReplayLetter.classList.remove("hidden");
+    state.letterOpenedOnce = true;
+    saveGame();
+    return;
+  }
+
+  letterTextEl.classList.add("typing");
+
+  runTypewriter(letterTextEl, text, {
+    speed,
+    onDone: () => {
+      btnOpenLetter.classList.add("hidden");
+      btnReplayLetter.classList.remove("hidden");
+      state.letterOpenedOnce = true;
+      saveGame();
+    },
+  });
+}
+
+/* --- music modal: build song cards once from CONFIG.songs --- */
+const songListEl = document.getElementById("song-list");
+
+CONFIG.songs.forEach((song) => {
+  const card = document.createElement("div");
+  card.className = "song-card";
+
+  const hasUrl = song.url && song.url !== "#";
+
+  const icon = document.createElement("div");
+  icon.className = "song-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = "🎵";
+
+  const body = document.createElement("div");
+  body.className = "song-body";
+
+  const h3 = document.createElement("h3");
+  h3.textContent = song.title;
+
+  const artist = document.createElement("p");
+  artist.className = "song-artist";
+  artist.textContent = song.artist || "";
+
+  const note = document.createElement("p");
+  note.className = "song-note";
+  note.textContent = song.note || "";
+
+  const link = document.createElement("a");
+  link.className = "listen-btn";
+  link.target = "_blank";
+  link.rel = "noopener";
+  if (hasUrl) {
+    link.href = song.url;
+    link.textContent = "Listen ▸";
+  } else {
+    link.href = "#";
+    link.classList.add("is-placeholder");
+    link.textContent = "Add a link ▸";
+    link.addEventListener("click", (e) => e.preventDefault());
+  }
+
+  body.append(h3, artist, note, link);
+  card.append(icon, body);
+  songListEl.appendChild(card);
+});
+
+/* --- settings modal --- */
+const volumeSlider = document.getElementById("volume-slider");
+const muteCheckbox = document.getElementById("mute-checkbox");
+const btnResetSave = document.getElementById("btn-reset-save");
+
+volumeSlider.addEventListener("input", (e) => {
+  AudioManager.setVolume(Number(e.target.value) / 100);
+});
+
+muteCheckbox.addEventListener("change", (e) => {
+  AudioManager.setMuted(e.target.checked);
+  updateMuteButton();
+});
+
+btnResetSave.addEventListener("click", () => {
+  const sure = window.confirm("This clears your saved progress and returns to the title screen. Continue?");
+  if (!sure) return;
+  clearSave();
+  window.location.reload();
+});
+
+/* =========================================================================
+   HUD BUTTONS
+========================================================================= */
+const btnMute = document.getElementById("btn-mute");
+const btnFullscreen = document.getElementById("btn-fullscreen");
+const btnGear = document.getElementById("btn-gear");
+
+function updateMuteButton() {
+  btnMute.textContent = state.muted ? "🔇" : "🔊";
+}
+
+btnMute.addEventListener("click", () => {
+  AudioManager.setMuted(!state.muted);
+  muteCheckbox.checked = state.muted;
+  updateMuteButton();
+});
+
+const supportsFullscreen = !!(
+  document.documentElement.requestFullscreen ||
+  document.documentElement.webkitRequestFullscreen
+);
+
+if (!supportsFullscreen) {
+  // iOS Safari (and a few other mobile browsers) don't support the
+  // Fullscreen API at all -- hide the button rather than show one that
+  // silently does nothing when tapped.
+  btnFullscreen.classList.add("hidden");
+} else {
+  btnFullscreen.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen)
+        .call(document.documentElement)
+        ?.catch?.(() => {});
+    } else {
+      (document.exitFullscreen || document.webkitExitFullscreen)?.call(document)?.catch?.(() => {});
+    }
+  });
+}
+
+btnGear.addEventListener("click", () => openModal("modal-settings"));
+document.getElementById("btn-settings").addEventListener("click", () => openModal("modal-settings"));
+
+/* =========================================================================
+   ROOM TRANSITIONS
+========================================================================= */
+function goToRoom(roomId, spawn) {
+  state.room = roomId;
+  state.player.x = spawn.x;
+  state.player.y = spawn.y;
+  state.player.vx = 0;
+  state.player.vy = 0;
+  hudRoomEl.textContent = rooms[roomId].label;
+  AudioManager.playRoomMusic(roomId);
+
+  if (roomId !== "hub" && state.visited[roomId] !== undefined) {
+    state.visited[roomId] = true;
+  }
+  saveGame();
+}
+
+/* Wraps goToRoom with a quick fade-through so walking through a door feels
+   like an intentional cut to a new place rather than an instant snap. */
+const roomFadeEl = document.getElementById("room-fade");
+const ROOM_FADE_MS = 220;
+
+function goToRoomWithFade(roomId, spawn) {
+  if (roomId === state.room) return;
+
+  if (prefersReducedMotion) {
+    goToRoom(roomId, spawn);
+    return;
+  }
+
+  inputState.frozen = true;
+  roomFadeEl.classList.add("active");
+  setTimeout(() => {
+    goToRoom(roomId, spawn);
+    requestAnimationFrame(() => {
+      roomFadeEl.classList.remove("active");
+      inputState.frozen = false;
+    });
+  }, ROOM_FADE_MS);
+}
+
+function allFourVisited() {
+  return state.visited.garden && state.visited.letter && state.visited.music && state.visited.comfort;
+}
+
+/* =========================================================================
+   AMBIENT ROOM PARTICLES
+   Small floating details that match each room's mood -- petals drifting
+   in the garden, notes rising in the music room, soft dust motes in the
+   letter room. Purely decorative, capped per-room so they stay subtle.
+========================================================================= */
+const PARTICLE_STYLES = {
+  garden: { symbol: "🌸", count: 6, speedY: 9, sway: 12, size: [8, 12], spawnEvery: 0.7 },
+  music: { symbol: "♪", count: 5, speedY: -9, sway: 9, size: [9, 13], spawnEvery: 0.8 },
+  letter: { symbol: "·", count: 10, speedY: 4, sway: 5, size: [3, 5], spawnEvery: 0.4 },
+};
+
+let roomParticles = [];
+let particleSpawnAccum = 0;
+
+function spawnRoomParticle(roomId, style) {
+  roomParticles.push({
+    room: roomId,
+    x: Math.random() * GAME_W,
+    y: style.speedY >= 0 ? -12 : GAME_H + 12,
+    speedY: style.speedY * (0.7 + Math.random() * 0.6),
+    sway: style.sway,
+    phase: Math.random() * Math.PI * 2,
+    size: style.size[0] + Math.random() * (style.size[1] - style.size[0]),
+    symbol: style.symbol,
+    opacity: 0.3 + Math.random() * 0.3,
+  });
+}
+
+function updateParticles(dt) {
+  const style = PARTICLE_STYLES[state.room];
+
+  if (style && !prefersReducedMotion) {
+    particleSpawnAccum += dt;
+    if (particleSpawnAccum > style.spawnEvery) {
+      particleSpawnAccum = 0;
+      const aliveHere = roomParticles.reduce((n, p) => n + (p.room === state.room ? 1 : 0), 0);
+      if (aliveHere < style.count) spawnRoomParticle(state.room, style);
+    }
+  }
+
+  for (let i = roomParticles.length - 1; i >= 0; i--) {
+    const p = roomParticles[i];
+    if (p.room !== state.room) {
+      roomParticles.splice(i, 1);
+      continue;
+    }
+    p.y += p.speedY * dt;
+    p.phase += dt;
+    if (p.y < -24 || p.y > GAME_H + 24) roomParticles.splice(i, 1);
+  }
+}
+
+function drawParticles() {
+  if (roomParticles.length === 0) return;
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (const p of roomParticles) {
+    const x = p.x + Math.sin(p.phase * 1.3) * p.sway;
+    ctx.globalAlpha = p.opacity;
+    ctx.font = `${p.size}px sans-serif`;
+    ctx.fillStyle = "#5C3A47";
+    ctx.fillText(p.symbol, x, p.y);
+  }
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+/* =========================================================================
+   COLLISION
+========================================================================= */
+function rectsOverlap(a, b) {
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+function moveWithCollision(player, dx, dy, obstacles) {
+  const box = { x: player.x, y: player.y, w: PLAYER_W, h: PLAYER_H };
+
+  // move on X, revert if it collides
+  box.x += dx;
+  for (const o of obstacles) {
+    if (rectsOverlap(box, o)) {
+      box.x -= dx;
+      break;
+    }
+  }
+
+  // move on Y, revert if it collides
+  box.y += dy;
+  for (const o of obstacles) {
+    if (rectsOverlap(box, o)) {
+      box.y -= dy;
+      break;
+    }
+  }
+
+  player.x = Math.max(0, Math.min(GAME_W - PLAYER_W, box.x));
+  player.y = Math.max(0, Math.min(GAME_H - PLAYER_H, box.y));
+}
+
+/* =========================================================================
+   UPDATE LOOP
+========================================================================= */
+let lastGateWarningAt = 0;
+let gateShakeUntil = 0;
+let doorHoldTarget = null;
+let doorHoldTimer = 0;
+
+function update(dt) {
+  const room = rooms[state.room];
+  const player = state.player;
+
+  if (!inputState.frozen) {
+    const kb = readKeyboardVector();
+    let tx = kb.x !== 0 ? kb.x : inputState.joyX;
+    let ty = kb.y !== 0 ? kb.y : inputState.joyY;
+
+    const inputMag = Math.hypot(tx, ty);
+    if (inputMag > 0.15) {
+      tx /= inputMag || 1;
+      ty /= inputMag || 1;
+    } else {
+      tx = 0;
+      ty = 0;
+    }
+
+    // Ease current velocity toward the target direction instead of
+    // snapping instantly -- gives movement a small, natural sense of
+    // weight on start/stop rather than feeling perfectly rigid.
+    const lerp = 1 - Math.pow(0.0001, dt * PLAYER_ACCEL);
+    player.vx += (tx - player.vx) * lerp;
+    player.vy += (ty - player.vy) * lerp;
+    if (Math.abs(player.vx) < 0.01) player.vx = 0;
+    if (Math.abs(player.vy) < 0.01) player.vy = 0;
+
+    const speedMag = Math.hypot(player.vx, player.vy);
+    player.moving = speedMag > 0.08;
+
+    if (player.moving) {
+      if (Math.abs(player.vx) > Math.abs(player.vy)) {
+        player.facing = player.vx > 0 ? "right" : "left";
+      } else {
+        player.facing = player.vy > 0 ? "down" : "up";
+      }
+      moveWithCollision(player, player.vx * PLAYER_SPEED * dt, player.vy * PLAYER_SPEED * dt, room.obstacles);
+    }
+
+    // doors (walk-into transitions) -- held briefly before firing so a
+    // quick pass along an edge doesn't read as an accidental teleport
+    const box = { x: player.x, y: player.y, w: PLAYER_W, h: PLAYER_H };
+    let overlappedDoor = null;
+
+    for (const door of room.doors) {
+      if (rectsOverlap(box, door)) {
+        if (door.gate && !allFourVisited()) {
+          const now = performance.now();
+          if (now - lastGateWarningAt > 2500) {
+            lastGateWarningAt = now;
+            gateShakeUntil = now + 420;
+            dialogue.show("", [CONFIG.gateLockedMessage]);
+          }
+          continue;
+        }
+        overlappedDoor = door;
+        break;
+      }
+    }
+
+    if (overlappedDoor) {
+      if (doorHoldTarget !== overlappedDoor) {
+        doorHoldTarget = overlappedDoor;
+        doorHoldTimer = 0;
+      }
+      doorHoldTimer += dt;
+      if (doorHoldTimer >= DOOR_HOLD_TIME) {
+        doorHoldTarget = null;
+        doorHoldTimer = 0;
+        goToRoomWithFade(overlappedDoor.target, overlappedDoor.spawn);
+      }
+    } else {
+      doorHoldTarget = null;
+      doorHoldTimer = 0;
+    }
+  }
+
+  updateParticles(dt);
+
+  // find nearest non-door interactable within range
+  nearestInteractable = null;
+  let bestDist = INTERACT_RADIUS;
+  const cx = player.x + PLAYER_W / 2;
+  const cy = player.y + PLAYER_H / 2;
+  for (const obj of room.interactables) {
+    const ox = obj.x + obj.w / 2;
+    const oy = obj.y + obj.h / 2;
+    const d = Math.hypot(cx - ox, cy - oy);
+    if (d < bestDist) {
+      bestDist = d;
+      nearestInteractable = obj;
+    }
+  }
+
+  if (nearestInteractable && !dialogue.active && !anyModalOpen()) {
+    interactPromptEl.classList.remove("hidden");
+    // fades in smoothly the closer the player gets, rather than a hard cutoff
+    const proximity = 1 - bestDist / INTERACT_RADIUS;
+    interactPromptEl.style.opacity = String(Math.max(0.25, Math.min(1, proximity + 0.25)));
+  } else {
+    interactPromptEl.classList.add("hidden");
+  }
+}
+
+/* =========================================================================
+   RENDERING
+========================================================================= */
+function drawFloor(theme) {
+  const cols = GAME_W / TILE;
+  const rows = GAME_H / TILE;
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      ctx.fillStyle = (row + col) % 2 === 0 ? theme.a : theme.b;
+      ctx.fillRect(col * TILE, row * TILE, TILE, TILE);
+    }
+  }
+  if (theme.night) {
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    const t = performance.now() / 900;
+    for (let i = 0; i < 24; i++) {
+      const sx = (i * 53) % GAME_W;
+      const sy = (i * 37) % (GAME_H - 40);
+      const twinkle = 0.4 + 0.6 * Math.abs(Math.sin(t + i));
+      ctx.globalAlpha = twinkle;
+      ctx.fillRect(sx, sy, 2, 2);
+    }
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawObstacle(o) {
+  ctx.save();
+  ctx.fillStyle = "rgba(92,58,71,0.18)";
+  if (o.round) {
+    ctx.beginPath();
+    ctx.ellipse(o.x + o.w / 2, o.y + o.h / 2, o.w / 2, o.h / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.fillRect(o.x, o.y, o.w, o.h);
+  }
+  ctx.restore();
+}
+
+function drawDoor(door) {
+  ctx.save();
+  ctx.font = "12px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#000000";
+  let ox = door.x + door.w / 2;
+  if (door.gate && !allFourVisited()) {
+    ctx.globalAlpha = 0.45;
+    const now = performance.now();
+    if (now < gateShakeUntil && !prefersReducedMotion) {
+      const remaining = (gateShakeUntil - now) / 420;
+      ox += Math.sin(now / 28) * remaining * 4;
+    }
+  }
+  ctx.fillText(door.label, ox, door.y + door.h / 2);
+  ctx.restore();
+}
+
+const POP_DURATION = 380; // ms, matches the little bounce when an interactable is triggered
+
+function drawInteractable(obj, t) {
+  if (obj.type === "npc") return; // drawn separately as a character
+  const bob = Math.sin(t * 3 + obj.x) * 2;
+
+  let scale = 1;
+  if (obj.poppedAt) {
+    const elapsed = performance.now() - obj.poppedAt;
+    if (elapsed < POP_DURATION) {
+      scale = 1 + Math.sin((elapsed / POP_DURATION) * Math.PI) * 0.35;
+    } else {
+      obj.poppedAt = null;
+    }
+  }
+
+  ctx.save();
+  ctx.font = "16px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#000000";
+  ctx.translate(obj.x + obj.w / 2, obj.y + obj.h / 2 + bob);
+  ctx.scale(scale, scale);
+  ctx.fillText(obj.label, 0, 0);
+  ctx.restore();
+}
+
+/* soft glow ring drawn under whichever interactable is currently in range,
+   so "you can interact with this" reads visually, not just via the prompt */
+function drawInteractGlow(obj, t) {
+  const cx = obj.x + obj.w / 2;
+  const cy = obj.y + obj.h / 2;
+  const pulse = prefersReducedMotion ? 0.7 : 0.5 + 0.5 * Math.sin(t * 4);
+  const r = 15 + pulse * 3;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  grad.addColorStop(0, "rgba(255,151,180,0.32)");
+  grad.addColorStop(1, "rgba(255,151,180,0)");
+  ctx.save();
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function roundRectFill(targetCtx, x, y, w, h, r) {
+  targetCtx.beginPath();
+  if (targetCtx.roundRect) {
+    targetCtx.roundRect(x, y, w, h, r);
+  } else {
+    // manual fallback for older browsers without roundRect support
+    targetCtx.moveTo(x + r, y);
+    targetCtx.arcTo(x + w, y, x + w, y + h, r);
+    targetCtx.arcTo(x + w, y + h, x, y + h, r);
+    targetCtx.arcTo(x, y + h, x, y, r);
+    targetCtx.arcTo(x, y, x + w, y, r);
+  }
+  targetCtx.fill();
+}
+
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.slice(1), 16);
+  let r = (num >> 16) + Math.round(2.55 * percent);
+  let g = ((num >> 8) & 0xff) + Math.round(2.55 * percent);
+  let b = (num & 0xff) + Math.round(2.55 * percent);
+  r = Math.max(0, Math.min(255, r));
+  g = Math.max(0, Math.min(255, g));
+  b = Math.max(0, Math.min(255, b));
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawChibi(targetCtx, x, y, color, facing, moving, t) {
+  const bodyW = PLAYER_W;
+  const bodyH = 12;
+  const headSize = 13;
+  const legOffset = moving && !prefersReducedMotion ? Math.sin(t * 10) * 2 : 0;
+  const walkBounce = moving && !prefersReducedMotion ? Math.abs(Math.sin(t * 10)) * 1.4 : 0;
+  const by = y - walkBounce; // the character lifts slightly on each step
+  const hairColor = shadeColor(color, -30);
+  const hx = x + (bodyW - headSize) / 2;
+
+  // soft ground shadow, anchored to the true ground position rather than
+  // the bounce, so it reads as contact with the floor
+  targetCtx.save();
+  targetCtx.fillStyle = "rgba(92,58,71,0.22)";
+  targetCtx.beginPath();
+  targetCtx.ellipse(x + bodyW / 2, y + bodyH + headSize + 3, bodyW / 2 - 1, 2.4, 0, 0, Math.PI * 2);
+  targetCtx.fill();
+  targetCtx.restore();
+
+  // feet
+  targetCtx.fillStyle = "#5C3A47";
+  roundRectFill(targetCtx, x + 1, by + bodyH + headSize - 3 + Math.max(0, legOffset), 5, 5, 1.5);
+  roundRectFill(targetCtx, x + bodyW - 6, by + bodyH + headSize - 3 + Math.max(0, -legOffset), 5, 5, 1.5);
+
+  // body, softly rounded rather than a hard block
+  targetCtx.fillStyle = color;
+  roundRectFill(targetCtx, x, by + headSize - 2, bodyW, bodyH, 3);
+
+  // head
+  targetCtx.fillStyle = "#FFE3D2";
+  roundRectFill(targetCtx, hx, by, headSize, headSize, 4);
+
+  // simple hair cap, tinted from the buddy's own color so each buddy
+  // reads as a distinct little silhouette at a glance
+  targetCtx.fillStyle = hairColor;
+  targetCtx.beginPath();
+  targetCtx.moveTo(hx - 0.5, by + headSize * 0.45);
+  targetCtx.quadraticCurveTo(hx + headSize / 2, by - 3, hx + headSize + 0.5, by + headSize * 0.45);
+  targetCtx.quadraticCurveTo(hx + headSize / 2, by + 2, hx - 0.5, by + headSize * 0.45);
+  targetCtx.fill();
+
+  // eyes, positioned by facing direction -- with a soft blink while idle
+  // so standing still doesn't read as frozen
+  const idlePhase = t % 4;
+  const blinking = !moving && idlePhase > 3.82 && !prefersReducedMotion;
+  const eyeH = blinking ? 0.4 : 1.6;
+  const cx = x + bodyW / 2;
+  const cy = by + headSize / 2 + 1;
+
+  // blush
+  targetCtx.fillStyle = "rgba(255,151,180,0.55)";
+  targetCtx.beginPath();
+  targetCtx.ellipse(cx - headSize * 0.34, cy + 1.6, 1.4, 1, 0, 0, Math.PI * 2);
+  targetCtx.ellipse(cx + headSize * 0.34, cy + 1.6, 1.4, 1, 0, 0, Math.PI * 2);
+  targetCtx.fill();
+
+  targetCtx.fillStyle = "#5C3A47";
+  if (facing === "down") {
+    targetCtx.fillRect(cx - 3, cy, 1.6, eyeH);
+    targetCtx.fillRect(cx + 1.4, cy, 1.6, eyeH);
+  } else if (facing === "up") {
+    targetCtx.fillRect(cx - 3, cy - 2, 1.6, eyeH);
+    targetCtx.fillRect(cx + 1.4, cy - 2, 1.6, eyeH);
+  } else if (facing === "left") {
+    targetCtx.fillRect(cx - 3, cy, 1.6, eyeH);
+  } else {
+    targetCtx.fillRect(cx + 1.4, cy, 1.6, eyeH);
+  }
+}
+
+function drawNPC(t) {
+  const obj = rooms.hub.interactables.find((o) => o.type === "npc");
+  if (!obj || state.room !== "hub") return;
+  const bob = Math.sin(t * 2) * 1.5;
+  drawChibi(ctx, obj.x, obj.y + bob, "#8FB3D9", "down", false, t);
+  ctx.save();
+  ctx.font = "9px 'Press Start 2P', monospace";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#5C3A47";
+  ctx.fillText(CONFIG.senderName, obj.x + PLAYER_W / 2, obj.y - 6);
+  ctx.restore();
+}
+
+function render(t) {
+  const room = rooms[state.room];
+  ctx.clearRect(0, 0, GAME_W, GAME_H);
+  drawFloor(room.theme);
+
+  room.obstacles.forEach(drawObstacle);
+  drawParticles();
+  room.doors.forEach(drawDoor);
+
+  if (nearestInteractable && !dialogue.active && !anyModalOpen()) {
+    drawInteractGlow(nearestInteractable, t);
+  }
+  room.interactables.forEach((o) => drawInteractable(o, t));
+
+  drawNPC(t);
+
+  const buddy = CONFIG.buddies[state.buddy] || CONFIG.buddies.flower;
+  drawChibi(ctx, state.player.x, state.player.y, buddy.color, state.player.facing, state.player.moving, t);
+
+  const iconBob = Math.sin(t * 3) * 1.5;
+  ctx.save();
+  ctx.font = "11px sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#000000";
+  ctx.fillText(buddy.icon, state.player.x + PLAYER_W / 2, state.player.y - 8 + iconBob);
+  ctx.restore();
+
+  // interact prompt position (DOM element, so it stays crisp at any scale)
+  if (nearestInteractable) {
+    const scaleX = canvas.clientWidth / GAME_W;
+    const scaleY = canvas.clientHeight / GAME_H;
+    const ox = (nearestInteractable.x + nearestInteractable.w / 2) * scaleX;
+    const oy = nearestInteractable.y * scaleY;
+    interactPromptEl.style.left = `${ox}px`;
+    interactPromptEl.style.top = `${oy}px`;
+  }
+}
+
+/* =========================================================================
+   BUDDY SELECT: LIVE SPRITE PREVIEWS
+   Draws the same chibi sprite used in-game onto each buddy card's little
+   canvas, so picking a buddy shows exactly what she'll look like walking
+   around -- not just a plain emoji standing in for it.
+========================================================================= */
+const buddyPreviews = Array.from(document.querySelectorAll(".buddy-preview")).map((canvas) => ({
+  canvas,
+  pctx: canvas.getContext("2d"),
+  buddyId: canvas.closest(".buddy-card").dataset.buddy,
+}));
+
+function renderBuddyPreviews(t) {
+  buddyPreviews.forEach(({ canvas, pctx, buddyId }) => {
+    const buddy = CONFIG.buddies[buddyId];
+    if (!buddy) return;
+    pctx.clearRect(0, 0, canvas.width, canvas.height);
+    const px = canvas.width / 2 - PLAYER_W / 2;
+    const py = canvas.height - 32;
+    drawChibi(pctx, px, py, buddy.color, "down", false, t);
+  });
+}
+
+let buddyPreviewLoopRunning = false;
+function startBuddyPreviewLoop() {
+  if (buddyPreviewLoopRunning || buddyPreviews.length === 0) return;
+  buddyPreviewLoopRunning = true;
+  function step(now) {
+    renderBuddyPreviews(now / 1000);
+    if (screens.buddy.classList.contains("active")) {
+      requestAnimationFrame(step);
+    } else {
+      buddyPreviewLoopRunning = false;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+/* =========================================================================
+   MAIN LOOP
+========================================================================= */
+let lastFrame = performance.now();
+
+function loop(now) {
+  const dt = Math.min((now - lastFrame) / 1000, 0.05);
+  lastFrame = now;
+  update(dt);
+  render(now / 1000);
+  requestAnimationFrame(loop);
+}
+
+/* =========================================================================
+   FINALE SEQUENCE
+========================================================================= */
+const finaleOverlay = document.getElementById("finale-overlay");
+const confettiCanvas = document.getElementById("confetti-canvas");
+const confettiCtx = confettiCanvas.getContext("2d");
+const finaleTextEl = document.getElementById("finale-text");
+const btnFinaleClose = document.getElementById("btn-finale-close");
+
+let confettiParticles = [];
+let confettiRunning = false;
+
+function spawnConfetti() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  const colors = ["#FF97B4", "#FFD3E0", "#E3B873", "#FFFFFF", "#FF7DA0"];
+  confettiParticles = [];
+  for (let i = 0; i < 90; i++) {
+    confettiParticles.push({
+      x: Math.random() * confettiCanvas.width,
+      y: -20 - Math.random() * confettiCanvas.height * 0.5,
+      vy: 40 + Math.random() * 60,
+      vx: (Math.random() - 0.5) * 40,
+      size: 4 + Math.random() * 5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * Math.PI,
+      spin: (Math.random() - 0.5) * 4,
+    });
+  }
+}
+
+let lastConfettiFrame = performance.now();
+function confettiLoop(now) {
+  if (!confettiRunning) return;
+  const dt = Math.min((now - lastConfettiFrame) / 1000, 0.05);
+  lastConfettiFrame = now;
+
+  confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  confettiParticles.forEach((p) => {
+    p.y += p.vy * dt;
+    p.x += p.vx * dt;
+    p.rotation += p.spin * dt;
+    if (p.y > confettiCanvas.height + 20) p.y = -20;
+
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rotation);
+    confettiCtx.fillStyle = p.color;
+    confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+    confettiCtx.restore();
+  });
+
+  requestAnimationFrame(confettiLoop);
+}
+
+function triggerFinale() {
+  inputState.frozen = true;
+  state.visited.giftArea = true;
+  saveGame();
+  AudioManager.sfx("celebrate");
+
+  finaleOverlay.classList.remove("hidden");
+  if (!prefersReducedMotion) {
+    spawnConfetti();
+    confettiRunning = true;
+    lastConfettiFrame = performance.now();
+    requestAnimationFrame(confettiLoop);
+  }
+
+  runTypewriter(finaleTextEl, fillTemplate(CONFIG.finaleMessage), {
+    speed: 26,
+    onDone: () => {
+      btnFinaleClose.textContent = "🤍 One more thing...";
+    },
+  });
+
+  btnFinaleClose.onclick = () => {
+    if (finaleTextEl.textContent !== fillTemplate(CONFIG.finaleMessage)) {
+      // still typing -- let it finish rather than jumping ahead
+      return;
+    }
+    if (btnFinaleClose.textContent.includes("One more thing")) {
+      runTypewriter(finaleTextEl, CONFIG.secretMessage, {
+        speed: 26,
+        onDone: () => {
+          btnFinaleClose.textContent = "Close";
+        },
+      });
+    } else {
+      confettiRunning = false;
+      finaleOverlay.classList.add("hidden");
+      inputState.frozen = false;
+    }
+  };
+}
+
+window.addEventListener("resize", () => {
+  if (!finaleOverlay.classList.contains("hidden")) {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+});
+
+/* =========================================================================
+   BOOTSTRAP
+========================================================================= */
+const btnStart = document.getElementById("btn-start");
+const btnContinue = document.getElementById("btn-continue");
+const nameForm = document.getElementById("name-form");
+const nameInput = document.getElementById("name-input");
+const buddyGrid = document.getElementById("buddy-grid");
+const welcomeHeading = document.getElementById("welcome-heading");
+
+function startFreshAdventure() {
+  clearSave();
+  state.name = "";
+  state.buddy = "flower";
+  state.room = "hub";
+  state.player = { x: HUB_SPAWN.x, y: HUB_SPAWN.y, vx: 0, vy: 0, facing: "down", moving: false };
+  state.visited = { garden: false, letter: false, music: false, comfort: false, giftArea: false };
+  state.letterOpenedOnce = false;
+  showOverlayScreen("name");
+  nameInput.value = "";
+  nameInput.focus();
+}
+
+function continueAdventure(save) {
+  state.name = save.name || "";
+  state.buddy = save.buddy || "flower";
+  state.room = save.room || "hub";
+  state.player = { x: save.player?.x ?? HUB_SPAWN.x, y: save.player?.y ?? HUB_SPAWN.y, vx: 0, vy: 0, facing: "down", moving: false };
+  state.visited = { ...state.visited, ...(save.visited || {}) };
+  state.muted = !!save.muted;
+  state.volume = typeof save.volume === "number" ? save.volume : 0.6;
+  state.letterOpenedOnce = !!save.letterOpenedOnce;
+
+  volumeSlider.value = String(Math.round(state.volume * 100));
+  muteCheckbox.checked = state.muted;
+  updateMuteButton();
+  AudioManager.applyVolume();
+
+  enterGameWorld({ skipWelcome: true });
+}
+
+function enterGameWorld({ skipWelcome = false } = {}) {
+  function begin() {
+    showOverlayScreen("game");
+    hudRoomEl.textContent = rooms[state.room].label;
+    AudioManager.playRoomMusic(state.room);
+    lastFrame = performance.now();
+    requestAnimationFrame(loop);
+  }
+
+  if (skipWelcome) {
+    begin();
+    return;
+  }
+
+  welcomeHeading.textContent = `Welcome, ${playerName()} 💗`;
+  showOverlayScreen("welcome");
+  saveGame();
+  setTimeout(begin, 1800);
+}
+
+btnStart.addEventListener("click", startFreshAdventure);
+
+btnContinue.addEventListener("click", () => {
+  const save = loadGame();
+  if (save) continueAdventure(save);
+});
+
+nameForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  state.name = nameInput.value.trim();
+  showOverlayScreen("buddy");
+  startBuddyPreviewLoop();
+});
+
+buddyGrid.addEventListener("click", (e) => {
+  const card = e.target.closest(".buddy-card");
+  if (!card) return;
+  state.buddy = card.dataset.buddy;
+  document.querySelectorAll(".buddy-card").forEach((c) => c.classList.toggle("selected", c === card));
+  setTimeout(() => enterGameWorld(), 250);
+});
+
+// tapping/clicking the game canvas also advances dialogue, handy on desktop
+canvas.addEventListener("click", () => {
+  if (dialogue.active) dialogue.advance();
+});
+
+/* --- initial boot: show Continue button if a save exists --- */
+(function boot() {
+  AudioManager.init();
+  const save = loadGame();
+  if (save) {
+    btnContinue.classList.remove("hidden");
+  }
+  showOverlayScreen("title");
+})();
