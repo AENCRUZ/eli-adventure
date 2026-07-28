@@ -426,7 +426,7 @@ const rooms = {
     buildings: [
       { x: 150, y: 0, w: 100, h: 46, doorX: 180, doorW: 40, roof: "#E3B873", roofAccent: "#F5C77E", wall: "#FFF7E9", label: "🎁", side: "top", gate: true, kind: "party" },
       { x: 0, y: 70, w: 50, h: 100, doorY: 100, doorH: 40, roof: "#8FB3D9", roofAccent: "#6E93BE", wall: "#EEF5FC", label: "🎵", side: "left", kind: "studio" },
-      { x: 350, y: 70, w: 50, h: 100, doorY: 100, doorH: 40, roof: "#C99A55", roofAccent: "#A87B3B", wall: "#FBF1E3", label: "💌", side: "right", kind: "library" },
+      { x: 350, y: 70, w: 50, h: 100, doorY: 100, doorH: 40, roof: "#c155c9", roofAccent: "#A87B3B", wall: "#f0e6ee", label: "💌", side: "right", kind: "library" },
       { x: 150, y: 194, w: 100, h: 46, doorX: 180, doorW: 40, roof: "#E39BB0", roofAccent: "#F2C2D2", wall: "#FFF3F7", label: "🌸", side: "bottom", kind: "greenhouse" },
     ],
     // Decorative, non-collidable environmental details -- scattered with
@@ -472,7 +472,7 @@ const rooms = {
     doors: [
       { x: 180, y: 0, w: 40, h: 14, label: "", target: "giftArea", spawn: ROOM_SPAWN, auto: true, gate: true },
       { x: 0, y: 100, w: 14, h: 40, label: "", target: "music", spawn: ROOM_SPAWN, auto: true },
-      { x: 386, y: 100, w: 14, h: 40, label: "", target: "letter", spawn: ROOM_SPAWN, auto: true },
+      { x: 325, y: 100, w: 14, h: 40, label: "", target: "letter", spawn: ROOM_SPAWN, auto: true },
       { x: 180, y: 226, w: 40, h: 14, label: "", target: "garden", spawn: ROOM_SPAWN, auto: true },
     ],
     interactables: [
@@ -484,25 +484,57 @@ const rooms = {
     label: "Flower Garden",
     theme: { a: "#EAF6D8", b: "#DDEFC0", floor: "grass" },
     obstacles: [
-      { x: 30, y: 30, w: 24, h: 20 },
-      { x: 340, y: 190, w: 24, h: 20 },
+      { x: 30, y: 30, w: 24, h: 20, hidden: true },
+      { x: 340, y: 190, w: 24, h: 20, hidden: true },
     ],
     decor: [
-      { type: "tree", x: 4, y: 6 },
+      // backdrop: a climbing trellis, a rock cluster and a birdbath give
+      // the room some structure instead of being an open field of grass
+      { type: "trellis", x: 176, y: 0 },
+      { type: "rockCluster", x: 26, y: 26 },
+      { type: "birdbath", x: 336, y: 186 },
+
+      { type: "tree", x: 5, y: 35 },
       { type: "tree", x: 394, y: 10, flip: true },
+      { type: "cherryTree", x: 95, y: 15 },
+      { type: "cherryTree", x: 310, y: 18, flip: true },
+      { type: "cherryTree", x: 145, y: 213 },
+      { type: "cherryTree", x: 250, y: 215, flip: true },
       { type: "bush", x: 20, y: 190 },
       { type: "bush", x: 366, y: 60 },
-      { type: "bush", x: 200, y: 20 },
-      { type: "plant", x: 120, y: 200 },
-      { type: "plant", x: 210, y: 205 },
+      { type: "bush", x: 238, y: 26 },
+      { type: "bush", x: 60, y: 214 },
+      { type: "plant", x: 100, y: 200 },
+      { type: "plant", x: 200, y: 120 },
       { type: "plant", x: 350, y: 150 },
-      { type: "leafPatch", x: 40, y: 120 },
+      { type: "leafPatch", x: 30, y: 120 },
       { type: "leafPatch", x: 260, y: 40 },
-      { type: "leafPatch", x: 190, y: 150 },
+      { type: "leafPatch", x: 220, y: 150 },
       { type: "gardenFlower", x: 110, y: 120 },
-      { type: "gardenFlower", x: 190, y: 200 },
-      { type: "gardenFlower", x: 260, y: 150 },
-      { type: "gardenFlower", x: 340, y: 110 },
+      { type: "gardenFlower", x: 190, y: 200, color: "#F5C77E" },
+      { type: "gardenFlower", x: 260, y: 150, color: "#C9A6E0" },
+      { type: "gardenFlower", x: 340, y: 110, color: "#8FB3D9" },
+
+      // a stepping-stone path leading from the door up into the garden
+      { type: "steppingStone", x: 187, y: 214 },
+      { type: "steppingStone", x: 208, y: 198 },
+      { type: "steppingStone", x: 190, y: 180 },
+      { type: "steppingStone", x: 207, y: 163 },
+      { type: "steppingStone", x: 195, y: 146 },
+
+      // soil beds grounding each interactable flower, drawn just beneath it
+      { type: "flowerbed", x: 68, y: 84 },
+      { type: "flowerbed", x: 158, y: 74 },
+      { type: "flowerbed", x: 248, y: 104 },
+      { type: "flowerbed", x: 328, y: 84 },
+      { type: "flowerbed", x: 98, y: 174 },
+      { type: "flowerbed", x: 288, y: 184 },
+
+      // drifting butterflies, drawn last so they read as being in front
+      { type: "butterfly", x: 130, y: 50, seed: 0 },
+      { type: "butterfly", x: 300, y: 130, seed: 1 },
+      { type: "butterfly", x: 70, y: 140, seed: 2 },
+      { type: "butterfly", x: 30, y: 175, seed: 3 },
     ],
     doors: [exitDoor("hub")],
     interactables: [
@@ -523,13 +555,29 @@ const rooms = {
       { x: 376, y: 40, w: 24, h: 130, hidden: true },
     ],
     decor: [
+      // back wall, dressed with a window, framed keepsakes and a clock
+      { type: "wallBand", x: 0, y: 0, w: 400, h: 40, color: "#E8D3B0" },
+      { type: "window", x: 176, y: 2 },
+      { type: "frame", x: 92, y: 8 },
+      { type: "frame", x: 298, y: 8 },
+      { type: "wallClock", x: 138, y: 18 },
+
       { type: "bookshelf", x: 2, y: 10 },
       { type: "bookshelf", x: 350, y: 10 },
-      { type: "rug", x: 130, y: 130, w: 140, h: 70 },
-      { type: "papers", x: 130, y: 150 },
-      { type: "papers", x: 250, y: 160 },
       { type: "lamp", x: 300, y: 40 },
       { type: "lamp", x: 60, y: 40 },
+
+      // little reading corner, tucked against the wall so the room feels lived-in
+      { type: "pottedPlant", x: 16, y: 158 },
+      { type: "pottedPlant", x: 362, y: 158 },
+
+      // the writing desk itself, facing the window, with a chair pulled in
+      { type: "chair", x: 187, y: 42 },
+      { type: "writingDesk", x: 158, y: 62, w: 84, h: 44 },
+
+      { type: "rug", x: 128, y: 128, w: 144, h: 74 },
+      { type: "papers", x: 122, y: 148 },
+      { type: "papers", x: 252, y: 162 },
     ],
     doors: [exitDoor("hub")],
     interactables: [
@@ -791,10 +839,16 @@ const envelopePaperEl = document.getElementById("envelope-paper");
 const letterTextEl = document.getElementById("letter-text");
 const btnOpenLetter = document.getElementById("btn-open-letter");
 const btnReplayLetter = document.getElementById("btn-replay-letter");
+let letterTyper = null; // active typewriter handle, so replays cancel any run still in progress
 
 function openLetterModal() {
   openModal("modal-letter");
   AudioManager.playRoomMusic("letter"); // soft music cue, per the brief
+
+  if (letterTyper) {
+    letterTyper.cancel();
+    letterTyper = null;
+  }
 
   if (state.letterOpenedOnce) {
     // already read before -- show it fully open, no need to replay the wait
@@ -833,6 +887,11 @@ function typeLetter() {
 
   btnReplayLetter.classList.add("hidden");
 
+  if (letterTyper) {
+    letterTyper.cancel();
+    letterTyper = null;
+  }
+
   if (prefersReducedMotion) {
     letterTextEl.textContent = text;
     btnOpenLetter.classList.add("hidden");
@@ -844,7 +903,7 @@ function typeLetter() {
 
   letterTextEl.classList.add("typing");
 
-  runTypewriter(letterTextEl, text, {
+  letterTyper = runTypewriter(letterTextEl, text, {
     speed,
     onDone: () => {
       btnOpenLetter.classList.add("hidden");
@@ -1343,50 +1402,279 @@ function drawBuildingFacade(b, t) {
   ctx.save();
 
   if (b.side === "left") {
-    // vertical facade hugging the left wall
+    // vertical facade hugging the left wall (mirrors "right"), styled
+    // with a peaked roof, trim accents, framed windows, and a small
+    // music-note accent for the music room.
+    const wallX = b.x + 14;
+    const wallW = b.w - 14;
+
+    // soft ground shadow for a touch of depth
+    ctx.fillStyle = "rgba(92,58,71,0.10)";
+    ctx.fillRect(wallX, b.y + b.h - 3, wallW - 2, 3);
+
+    // peaked roof
     ctx.fillStyle = b.roof;
-    ctx.fillRect(b.x + 14, b.y, b.w - 14, 8); // eave strip
+    ctx.beginPath();
+    ctx.moveTo(wallX - 2, b.y + 9);
+    ctx.lineTo(wallX + wallW / 2, b.y - 3);
+    ctx.lineTo(wallX + wallW + 2, b.y + 9);
+    ctx.closePath();
+    ctx.fill();
+    // eave trim accent
+    ctx.fillStyle = b.roofAccent;
+    ctx.fillRect(wallX - 2, b.y + 8, wallW + 4, 3);
+
+    // wall body
     ctx.fillStyle = b.wall;
-    ctx.fillRect(b.x + 14, b.y + 8, b.w - 14, b.h - 8);
-    // windows
-    ctx.fillStyle = "rgba(92,58,71,0.16)";
-    ctx.fillRect(b.x + b.w - 16, b.y + 16, 8, 8);
-    ctx.fillRect(b.x + b.w - 16, b.y + b.h - 24, 8, 8);
-    // door opening
+    ctx.fillRect(wallX, b.y + 11, wallW, b.h - 11);
+
+    // subtle vertical siding seams
+    ctx.strokeStyle = "rgba(92,58,71,0.10)";
+    ctx.lineWidth = 1;
+    for (let sx = wallX + 5; sx < wallX + wallW - 6; sx += 11) {
+      ctx.beginPath();
+      ctx.moveTo(sx + 0.5, b.y + 13);
+      ctx.lineTo(sx + 0.5, b.y + b.h - 2);
+      ctx.stroke();
+    }
+
+    // framed windows with sills, set near the inner (right) edge of the wall
+    [b.y + 22, b.y + b.h - 30].forEach((wy) => {
+      ctx.fillStyle = b.roofAccent;
+      ctx.fillRect(wallX + wallW - 18, wy - 2, 12, 13);
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.fillRect(wallX + wallW - 17, wy - 1, 10, 11);
+      ctx.fillStyle = "rgba(92,58,71,0.22)";
+      ctx.fillRect(wallX + wallW - 16, wy, 8, 9);
+      ctx.strokeStyle = "rgba(92,58,71,0.3)";
+      ctx.beginPath();
+      ctx.moveTo(wallX + wallW - 12, wy);
+      ctx.lineTo(wallX + wallW - 12, wy + 9);
+      ctx.stroke();
+      ctx.fillStyle = b.roofAccent;
+      ctx.fillRect(wallX + wallW - 19, wy + 11, 14, 2); // sill
+    });
+
+    // little music note, like a shop sign, near the base of the wall
+    ctx.font = "11px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = b.roofAccent;
+    ctx.fillText("♪", wallX + wallW / 2, b.y + b.h - 8);
+
+    // small awning over the door
+    ctx.fillStyle = b.roofAccent;
+    ctx.beginPath();
+    ctx.moveTo(wallX + 6, b.doorY - 6);
+    ctx.lineTo(wallX - 10, b.doorY - 2);
+    ctx.lineTo(wallX + 6, b.doorY);
+    ctx.closePath();
+    ctx.fill();
+
+    // door frame + opening
+    ctx.fillStyle = b.roofAccent;
+    ctx.fillRect(b.x - 2, b.doorY - 2, 16, b.doorH + 4);
     ctx.fillStyle = "#5C3A47";
     ctx.fillRect(b.x, b.doorY, 14, b.doorH);
+
     ctx.font = "13px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillText(b.label, b.x + 7, b.doorY + b.doorH / 2);
+  } else if (b.side === "right") {
+    // vertical facade hugging the right wall (mirror of "left"), styled
+    // with a peaked roof, trim accents, framed windows, and a small
+    // awning over the door instead of flat rectangles.
+    const wallX = b.x;
+    const wallW = b.w - 14;
+
+    // soft ground shadow for a touch of depth
+    ctx.fillStyle = "rgba(92,58,71,0.10)";
+    ctx.fillRect(wallX + 2, b.y + b.h - 3, wallW - 2, 3);
+
+    // peaked roof
+    ctx.fillStyle = b.roof;
+    ctx.beginPath();
+    ctx.moveTo(wallX - 2, b.y + 9);
+    ctx.lineTo(wallX + wallW / 2, b.y - 3);
+    ctx.lineTo(wallX + wallW + 2, b.y + 9);
+    ctx.closePath();
+    ctx.fill();
+    // eave trim accent
+    ctx.fillStyle = b.roofAccent;
+    ctx.fillRect(wallX - 2, b.y + 8, wallW + 4, 3);
+
+    // wall body
+    ctx.fillStyle = b.wall;
+    ctx.fillRect(wallX, b.y + 11, wallW, b.h - 11);
+
+    // subtle vertical siding seams
+    ctx.strokeStyle = "rgba(92,58,71,0.10)";
+    ctx.lineWidth = 1;
+    for (let sx = wallX + 9; sx < wallX + wallW - 3; sx += 11) {
+      ctx.beginPath();
+      ctx.moveTo(sx + 0.5, b.y + 13);
+      ctx.lineTo(sx + 0.5, b.y + b.h - 2);
+      ctx.stroke();
+    }
+
+    // framed windows with sills
+    [b.y + 22, b.y + b.h - 30].forEach((wy) => {
+      ctx.fillStyle = b.roofAccent;
+      ctx.fillRect(wallX + 6, wy - 2, 12, 13);
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.fillRect(wallX + 7, wy - 1, 10, 11);
+      ctx.fillStyle = "rgba(92,58,71,0.22)";
+      ctx.fillRect(wallX + 8, wy, 8, 9);
+      ctx.strokeStyle = "rgba(92,58,71,0.3)";
+      ctx.beginPath();
+      ctx.moveTo(wallX + 12, wy);
+      ctx.lineTo(wallX + 12, wy + 9);
+      ctx.stroke();
+      ctx.fillStyle = b.roofAccent;
+      ctx.fillRect(wallX + 5, wy + 11, 14, 2); // sill
+    });
+
+    // small awning over the door
+    ctx.fillStyle = b.roofAccent;
+    ctx.beginPath();
+    ctx.moveTo(wallX + wallW - 6, b.doorY - 6);
+    ctx.lineTo(wallX + wallW + 10, b.doorY - 2);
+    ctx.lineTo(wallX + wallW - 6, b.doorY);
+    ctx.closePath();
+    ctx.fill();
+
+    // door frame + opening
+    ctx.fillStyle = b.roofAccent;
+    ctx.fillRect(wallX + wallW - 2, b.doorY - 2, 16, b.doorH + 4);
+    ctx.fillStyle = "#5C3A47";
+    ctx.fillRect(wallX + wallW, b.doorY, 14, b.doorH);
+
+    ctx.font = "13px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(b.label, wallX + wallW + 7, b.doorY + b.doorH / 2);
   } else {
-    // facade opening upward off the top edge
+    // facade opening upward off the top edge (gift / greenhouse)
     let dx = b.doorX + b.doorW / 2;
     if (locked && performance.now() < gateShakeUntil && !prefersReducedMotion) {
       const remaining = (gateShakeUntil - performance.now()) / 420;
       dx += Math.sin(performance.now() / 28) * remaining * 4;
     }
 
-    // door opening at the very top edge
-    ctx.fillStyle = "#5C3A47";
-    ctx.fillRect(b.doorX, b.y, b.doorW, 14);
+    if (b.kind === "party") {
+      // festive birthday facade: scalloped bunting eave, round balloon
+      // windows with strings, confetti-colored door trim.
+      ctx.fillStyle = "rgba(92,58,71,0.10)";
+      ctx.fillRect(b.x + 3, b.y + b.h - 3, b.w - 6, 3);
 
-    // eave / lintel
-    ctx.fillStyle = b.roof;
-    ctx.fillRect(b.x, b.y + 14, b.w, 8);
+      // wall body
+      ctx.fillStyle = b.wall;
+      ctx.fillRect(b.x, b.y + 22, b.w, b.h - 22);
 
-    // wall body
-    ctx.fillStyle = b.wall;
-    ctx.fillRect(b.x, b.y + 22, b.w, b.h - 22);
+      // scalloped bunting eave instead of a flat strip
+      const scallopW = 10;
+      for (let sx = b.x; sx < b.x + b.w; sx += scallopW) {
+        ctx.fillStyle = Math.floor((sx - b.x) / scallopW) % 2 === 0 ? b.roof : b.roofAccent;
+        ctx.beginPath();
+        ctx.moveTo(sx, b.y + 14);
+        ctx.lineTo(sx + scallopW, b.y + 14);
+        ctx.lineTo(sx + scallopW / 2, b.y + 22);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.fillStyle = b.roof;
+      ctx.fillRect(b.x, b.y + 14, b.w, 4);
 
-    // little windows either side of the door
-    ctx.fillStyle = "rgba(92,58,71,0.16)";
-    ctx.fillRect(b.x + 10, b.y + 30, 10, 10);
-    ctx.fillRect(b.x + b.w - 20, b.y + 30, 10, 10);
+      // round balloon windows either side of the door, with strings
+      ctx.fillStyle = b.roofAccent;
+      ctx.beginPath();
+      ctx.arc(b.x + 18, b.y + 34, 7, 0, Math.PI * 2);
+      ctx.arc(b.x + b.w - 18, b.y + 34, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,0.55)";
+      ctx.beginPath();
+      ctx.arc(b.x + 16, b.y + 32, 2.5, 0, Math.PI * 2);
+      ctx.arc(b.x + b.w - 20, b.y + 32, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(92,58,71,0.3)";
+      ctx.beginPath();
+      ctx.moveTo(b.x + 18, b.y + 41);
+      ctx.lineTo(b.x + 18, b.y + 46);
+      ctx.moveTo(b.x + b.w - 18, b.y + 41);
+      ctx.lineTo(b.x + b.w - 18, b.y + 46);
+      ctx.stroke();
+
+      // door opening framed with confetti-colored trim
+      ctx.fillStyle = b.roofAccent;
+      ctx.fillRect(b.doorX - 2, b.y - 2, b.doorW + 4, 16);
+      ctx.fillStyle = "#5C3A47";
+      ctx.fillRect(b.doorX, b.y, b.doorW, 14);
+    } else if (b.kind === "greenhouse") {
+      // garden greenhouse facade: arched glass roof, plant boxes under
+      // the windows, a trellis-trimmed door.
+      // wall body
+      ctx.fillStyle = b.wall;
+      ctx.fillRect(b.x, b.y + 22, b.w, b.h - 22);
+
+      // arched glass roof instead of a flat lintel
+      ctx.fillStyle = b.roof;
+      ctx.beginPath();
+      ctx.moveTo(b.x, b.y + 22);
+      ctx.quadraticCurveTo(b.x + b.w / 2, b.y + 2, b.x + b.w, b.y + 22);
+      ctx.lineTo(b.x + b.w, b.y + 14);
+      ctx.quadraticCurveTo(b.x + b.w / 2, b.y - 6, b.x, b.y + 14);
+      ctx.closePath();
+      ctx.fill();
+      // glass pane seams on the dome
+      ctx.strokeStyle = b.roofAccent;
+      ctx.lineWidth = 1;
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.moveTo(b.x + b.w / 2 + i * 16, b.y + 20);
+        ctx.quadraticCurveTo(b.x + b.w / 2 + i * 8, b.y + 4, b.x + b.w / 2, b.y + 2);
+        ctx.stroke();
+      }
+
+      // little plant boxes with sprouting leaves beneath the windows
+      [b.x + 10, b.x + b.w - 24].forEach((wx) => {
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fillRect(wx, b.y + 30, 14, 10);
+        ctx.strokeStyle = "rgba(92,58,71,0.25)";
+        ctx.strokeRect(wx, b.y + 30, 14, 10);
+        ctx.fillStyle = b.roofAccent;
+        ctx.fillRect(wx, b.y + 40, 14, 4); // planter box
+        ctx.fillStyle = "#8FBF6E";
+        ctx.beginPath();
+        ctx.arc(wx + 4, b.y + 38, 3, 0, Math.PI * 2);
+        ctx.arc(wx + 10, b.y + 36, 3, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // door opening with a trellis-colored frame
+      ctx.fillStyle = b.roofAccent;
+      ctx.fillRect(b.doorX - 2, b.y - 2, b.doorW + 4, 16);
+      ctx.fillStyle = "#5C3A47";
+      ctx.fillRect(b.doorX, b.y, b.doorW, 14);
+    } else {
+      // fallback: original flat-box style for any other top/bottom kind
+      ctx.fillStyle = "#5C3A47";
+      ctx.fillRect(b.doorX, b.y, b.doorW, 14);
+      ctx.fillStyle = b.roof;
+      ctx.fillRect(b.x, b.y + 14, b.w, 8);
+      ctx.fillStyle = b.wall;
+      ctx.fillRect(b.x, b.y + 22, b.w, b.h - 22);
+      ctx.fillStyle = "rgba(92,58,71,0.16)";
+      ctx.fillRect(b.x + 10, b.y + 30, 10, 10);
+      ctx.fillRect(b.x + b.w - 20, b.y + 30, 10, 10);
+    }
 
     ctx.font = "13px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
+    ctx.fillStyle = "#FFFFFF";
     ctx.fillText(b.label, dx, b.y + 7);
 
     if (b.gate) {
@@ -1452,6 +1740,79 @@ function drawTree(x, y, t, flip) {
   ctx.restore();
 }
 
+function drawCherryTree(x, y, t, flip) {
+  const s = sway(t, x, 2.2) * (flip ? -1 : 1);
+  ctx.save();
+  ctx.translate(x, y);
+
+  // a scatter of fallen petals resting in the grass at the base
+  ctx.fillStyle = "rgba(255,196,214,0.6)";
+  const petalSpots = [[-10, 15], [6, 18], [-3, 20], [12, 14], [-14, 12]];
+  petalSpots.forEach(([px, py]) => {
+    ctx.beginPath();
+    ctx.ellipse(px, py, 2.2, 1.3, 0.4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // trunk with a small forking branch
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(-3, 0, 6, 15);
+  ctx.strokeStyle = "#8A6470";
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 2);
+  ctx.lineTo(flip ? -8 : 8, -8);
+  ctx.stroke();
+
+  ctx.translate(0, -3);
+  ctx.rotate((s * Math.PI) / 180);
+
+  // full, soft blossom-pink canopy
+  ctx.fillStyle = "#FFC4D6";
+  ctx.beginPath();
+  ctx.ellipse(0, -16, 17, 14, 0, 0, Math.PI * 2);
+  ctx.ellipse(-13, -8, 11, 10, 0, 0, Math.PI * 2);
+  ctx.ellipse(13, -8, 11, 10, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, -26, 10, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // lighter highlight cluster
+  ctx.fillStyle = "#FFE1EC";
+  ctx.beginPath();
+  ctx.ellipse(-5, -21, 8, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // deeper shaded clusters for a little depth
+  ctx.fillStyle = "#F79FBF";
+  ctx.beginPath();
+  ctx.ellipse(9, -6, 6, 5, 0, 0, Math.PI * 2);
+  ctx.ellipse(-10, -4, 5, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // tiny blossom-fleck texture across the canopy
+  ctx.fillStyle = "rgba(255,255,255,0.55)";
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * 12, -16 + Math.sin(a) * 10, 1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // one petal actively drifting down and away from the canopy, looping
+  const drift = prefersReducedMotion ? 0 : (t * 14 + x) % 30;
+  ctx.fillStyle = "rgba(255,196,214,0.85)";
+  ctx.save();
+  ctx.translate((flip ? -1 : 1) * (16 + drift * 0.6), -4 + drift);
+  ctx.rotate(drift * 0.2);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 2.4, 1.4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.restore();
+}
+
 function drawBush(x, y, t) {
   const s = sway(t, x, 1.2);
   ctx.save();
@@ -1497,7 +1858,7 @@ function drawLeafPatch(x, y, t) {
   ctx.restore();
 }
 
-function drawGardenFlower(x, y, t) {
+function drawGardenFlower(x, y, t, color) {
   const s = sway(t, x, 4);
   ctx.save();
   ctx.translate(x, y);
@@ -1508,7 +1869,7 @@ function drawGardenFlower(x, y, t) {
   ctx.moveTo(0, 10);
   ctx.lineTo(0, -6);
   ctx.stroke();
-  ctx.fillStyle = "#FFD3E0";
+  ctx.fillStyle = color || "#FFD3E0";
   for (let i = 0; i < 5; i++) {
     const a = (i / 5) * Math.PI * 2;
     ctx.beginPath();
@@ -1522,33 +1883,299 @@ function drawGardenFlower(x, y, t) {
   ctx.restore();
 }
 
+/* =========================================================================
+   FLOWER GARDEN DRESSING
+   A mossy rock cluster and a stone birdbath give the two obstacle spots an
+   actual identity, flowerbeds ground the interactable flowers in real soil,
+   a stepping-stone path and a climbing trellis add structure, and a few
+   drifting butterflies keep the whole scene gently alive.
+========================================================================= */
+function drawRockCluster(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(14, 23, 17, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#AFA898";
+  ctx.beginPath();
+  ctx.ellipse(20, 12, 11, 9, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.22)";
+  ctx.beginPath();
+  ctx.ellipse(16, 8, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#948C7C";
+  ctx.beginPath();
+  ctx.ellipse(9, 17, 13, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.2)";
+  ctx.beginPath();
+  ctx.ellipse(4, 12, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // moss tufts and a couple of tiny flowers tucked at the base
+  ctx.fillStyle = "#7BAA63";
+  ctx.beginPath();
+  ctx.ellipse(1, 9, 3, 2, 0.3, 0, Math.PI * 2);
+  ctx.ellipse(19, 4, 3, 2, -0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#FFD3E0";
+  ctx.beginPath();
+  ctx.arc(-2, 21, 1.4, 0, Math.PI * 2);
+  ctx.arc(25, 20, 1.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBirdbath(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(12, 25, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // pedestal
+  ctx.fillStyle = "#C7C0B2";
+  ctx.fillRect(9, 10, 6, 14);
+  ctx.beginPath();
+  ctx.ellipse(12, 24, 9, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // basin + water
+  ctx.fillStyle = "#B7AFA0";
+  ctx.beginPath();
+  ctx.ellipse(12, 8, 13, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#BFE0F0";
+  ctx.beginPath();
+  ctx.ellipse(12, 7, 10, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // a soft glint that drifts across the water
+  const glint = prefersReducedMotion ? 0.6 : 0.5 + 0.5 * Math.sin(t * 2 + x);
+  ctx.fillStyle = `rgba(255,255,255,${0.55 * glint})`;
+  ctx.beginPath();
+  ctx.ellipse(8 + Math.sin(t * 0.6) * 2, 6, 2.4, 1, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawFlowerbed(cx, cy) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.fillStyle = "rgba(139,110,80,0.28)";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 15, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(92,58,71,0.16)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 15, 6, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = "#7BAA63";
+  ctx.beginPath();
+  ctx.ellipse(-9, -2, 3, 1.6, -0.4, 0, Math.PI * 2);
+  ctx.ellipse(10, -1.5, 3, 1.6, 0.4, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawSteppingStone(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.12)";
+  ctx.beginPath();
+  ctx.ellipse(0, 2.5, 10, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#C7BFAE";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 9, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.22)";
+  ctx.beginPath();
+  ctx.ellipse(-2.5, -1.5, 3, 1.6, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawTrellis(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.1)";
+  ctx.beginPath();
+  ctx.ellipse(20, 47, 20, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#C99A55";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(2, 4, 36, 40);
+  for (let i = 1; i < 4; i++) {
+    ctx.beginPath();
+    ctx.moveTo(2 + i * 9, 4);
+    ctx.lineTo(2 + i * 9, 44);
+    ctx.stroke();
+  }
+  for (let j = 1; j < 4; j++) {
+    ctx.beginPath();
+    ctx.moveTo(2, 4 + j * 10);
+    ctx.lineTo(38, 4 + j * 10);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(2, 4);
+  ctx.quadraticCurveTo(20, -10, 38, 4);
+  ctx.stroke();
+
+  // climbing vine dotted with little flowers
+  const petalColors = ["#FF97B4", "#FFD3E0", "#C9A6E0"];
+  for (let i = 0; i < 10; i++) {
+    const along = i / 10;
+    const px = 2 + along * 36 + Math.sin(t + i) * 1.4;
+    const py = 6 + Math.sin(along * Math.PI) * -8 + (i % 2 === 0 ? 6 : 20);
+    ctx.fillStyle = "#7BAA63";
+    ctx.beginPath();
+    ctx.ellipse(px, py, 2, 1.2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = petalColors[i % petalColors.length];
+    ctx.beginPath();
+    ctx.arc(px + 2, py - 1, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawButterfly(x, y, t, seed = 0) {
+  const driftX = prefersReducedMotion ? 0 : Math.sin(t * 0.9 + seed) * 16;
+  const driftY = prefersReducedMotion ? 0 : Math.cos(t * 1.3 + seed * 1.7) * 8 - 4;
+  const flap = prefersReducedMotion ? 0.8 : 0.5 + 0.5 * Math.sin(t * 12 + seed * 3);
+  const colors = ["#FF97B4", "#C9A6E0", "#F5C77E"];
+  ctx.save();
+  ctx.translate(x + driftX, y + driftY);
+  ctx.fillStyle = colors[seed % colors.length];
+
+  ctx.save();
+  ctx.translate(-0.5, 0);
+  ctx.scale(0.5 + flap * 0.5, 1);
+  ctx.beginPath();
+  ctx.ellipse(-3, -2.5, 3.4, 2.6, 0, 0, Math.PI * 2);
+  ctx.ellipse(-2.6, 2, 2.6, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(0.5, 0);
+  ctx.scale(0.5 + flap * 0.5, 1);
+  ctx.beginPath();
+  ctx.ellipse(3, -2.5, 3.4, 2.6, 0, 0, Math.PI * 2);
+  ctx.ellipse(2.6, 2, 2.6, 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.fillStyle = "#5C3A47";
+  ctx.fillRect(-0.6, -3, 1.2, 6);
+  ctx.restore();
+}
+
 function drawBookshelf(x, y) {
   ctx.save();
   ctx.translate(x, y);
+  // soft ground shadow so it reads as standing on the floor, not floating
+  ctx.fillStyle = "rgba(92,58,71,0.16)";
+  ctx.beginPath();
+  ctx.ellipse(24, 102, 26, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.fillStyle = "#8A6470";
   ctx.fillRect(0, 0, 48, 100);
+  // left-edge shading for a touch of depth
+  ctx.fillStyle = "rgba(92,58,71,0.28)";
+  ctx.fillRect(0, 0, 5, 100);
+  ctx.fillStyle = "rgba(255,255,255,0.08)";
+  ctx.fillRect(43, 0, 5, 100);
+
   const colors = ["#FF97B4", "#8FB3D9", "#C9A6E0", "#F5C77E", "#9FD08A"];
   for (let row = 0; row < 4; row++) {
     ctx.fillStyle = "#F7EAD8";
     ctx.fillRect(4, 6 + row * 24, 40, 18);
+    // shelf-plank shadow line
+    ctx.fillStyle = "rgba(92,58,71,0.22)";
+    ctx.fillRect(4, 6 + row * 24 + 17, 40, 2);
     let bx = 6;
     for (let i = 0; i < 7; i++) {
+      const leanAngle = ((row + i) % 3 === 0) ? -0.06 : 0;
+      ctx.save();
+      ctx.translate(bx + 2, 8 + row * 24 + 14);
+      ctx.rotate(leanAngle);
       ctx.fillStyle = colors[(row + i) % colors.length];
-      ctx.fillRect(bx, 8 + row * 24, 4, 14);
+      ctx.fillRect(-2, -14, 4, 14);
+      ctx.fillStyle = "rgba(255,255,255,0.25)";
+      ctx.fillRect(-2, -14, 1, 14);
+      ctx.restore();
       bx += 5;
     }
   }
+
+  // little top ledge with a small trinket, so the shelf doesn't end flatly
+  ctx.fillStyle = "#5C3A47";
+  ctx.fillRect(-2, -4, 52, 4);
+  ctx.fillStyle = "#7BAA63";
+  ctx.beginPath();
+  ctx.ellipse(38, -8, 5, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#C99A55";
+  ctx.fillRect(35, -6, 6, 4);
   ctx.restore();
 }
 
 function drawRug(x, y, w, h) {
   ctx.save();
-  ctx.fillStyle = "rgba(255,151,180,0.22)";
+  // faint shadow underneath so it sits on the floor rather than floating on it
+  ctx.fillStyle = "rgba(92,58,71,0.08)";
+  roundRectFill(ctx, x + 3, y + 4, w, h, 12);
+
+  ctx.fillStyle = "rgba(255,151,180,0.24)";
   roundRectFill(ctx, x, y, w, h, 10);
-  ctx.strokeStyle = "rgba(255,151,180,0.4)";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x + 6, y + 6, w - 12, h - 12);
+  ctx.strokeStyle = "rgba(255,151,180,0.45)";
+  ctx.lineWidth = 3;
+  roundRectStroke(ctx, x + 5, y + 5, w - 10, h - 10, 8);
+  ctx.strokeStyle = "rgba(255,151,180,0.3)";
+  ctx.lineWidth = 1;
+  roundRectStroke(ctx, x + 10, y + 10, w - 20, h - 20, 6);
+
+  // woven diamond motif down the centre, like a real patterned rug
+  ctx.strokeStyle = "rgba(199,122,151,0.35)";
+  ctx.lineWidth = 1.4;
+  const cx = x + w / 2;
+  const cy = y + h / 2;
+  for (let i = -1; i <= 1; i++) {
+    const dx = cx + i * 30;
+    ctx.beginPath();
+    ctx.moveTo(dx, cy - 14);
+    ctx.lineTo(dx + 10, cy);
+    ctx.lineTo(dx, cy + 14);
+    ctx.lineTo(dx - 10, cy);
+    ctx.closePath();
+    ctx.stroke();
+  }
   ctx.restore();
+}
+
+function roundRectStroke(targetCtx, x, y, w, h, r) {
+  targetCtx.beginPath();
+  if (targetCtx.roundRect) {
+    targetCtx.roundRect(x, y, w, h, r);
+  } else {
+    targetCtx.moveTo(x + r, y);
+    targetCtx.arcTo(x + w, y, x + w, y + h, r);
+    targetCtx.arcTo(x + w, y + h, x, y + h, r);
+    targetCtx.arcTo(x, y + h, x, y, r);
+    targetCtx.arcTo(x, y, x + w, y, r);
+  }
+  targetCtx.stroke();
 }
 
 function drawPapers(x, y) {
@@ -1580,6 +2207,302 @@ function drawLamp(x, y, t) {
   ctx.fillStyle = grad;
   ctx.beginPath();
   ctx.arc(8, 8, 16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* =========================================================================
+   LETTER ROOM DRESSING
+   A back wall with a window, framed keepsakes and a clock, plus a proper
+   writing desk and chair -- so the room reads as a real, lived-in study
+   instead of an open floor with two bookshelves on it.
+========================================================================= */
+function drawWallBand(x, y, w, h, color) {
+  ctx.save();
+  ctx.fillStyle = color || "#E8D3B0";
+  ctx.fillRect(x, y, w, h);
+  // faint vertical wallpaper stripes
+  ctx.strokeStyle = "rgba(92,58,71,0.06)";
+  ctx.lineWidth = 1;
+  for (let sx = x + 6; sx < x + w; sx += 14) {
+    ctx.beginPath();
+    ctx.moveTo(sx, y);
+    ctx.lineTo(sx, y + h);
+    ctx.stroke();
+  }
+  // wainscoting trim where the wall meets the floor
+  ctx.fillStyle = "#C99A55";
+  ctx.fillRect(x, y + h - 4, w, 4);
+  ctx.fillStyle = "rgba(92,58,71,0.3)";
+  ctx.fillRect(x, y + h - 4, w, 1);
+  ctx.fillStyle = "rgba(255,255,255,0.25)";
+  ctx.fillRect(x, y + h - 1, w, 1);
+  ctx.restore();
+}
+
+function drawWindow(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // soft daylight spilling onto the floor below the window
+  const glow = ctx.createRadialGradient(24, 55, 4, 24, 55, 60);
+  glow.addColorStop(0, "rgba(255,247,224,0.32)");
+  glow.addColorStop(1, "rgba(255,247,224,0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.ellipse(24, 58, 60, 32, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // frame
+  ctx.fillStyle = "#C99A55";
+  ctx.fillRect(-3, -3, 54, 40);
+  // sky
+  const sky = ctx.createLinearGradient(0, 0, 0, 34);
+  sky.addColorStop(0, "#BFE0F0");
+  sky.addColorStop(1, "#EAF6FB");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, 48, 34);
+  // little clouds
+  ctx.fillStyle = "rgba(255,255,255,0.75)";
+  ctx.beginPath();
+  ctx.ellipse(13, 10, 7, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(30, 19, 8, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // mullions
+  ctx.strokeStyle = "#C99A55";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(24, 0);
+  ctx.lineTo(24, 34);
+  ctx.moveTo(0, 17);
+  ctx.lineTo(48, 17);
+  ctx.stroke();
+  // sill
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(-5, 34, 58, 4);
+
+  // curtain rod
+  ctx.strokeStyle = "#8A6470";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-9, -6);
+  ctx.lineTo(57, -6);
+  ctx.stroke();
+
+  // softly swaying curtains
+  const sway = prefersReducedMotion ? 0 : Math.sin(t * 1.1) * 1.6;
+  ctx.fillStyle = "rgba(255,151,180,0.55)";
+  ctx.beginPath();
+  ctx.moveTo(-4, -5);
+  ctx.quadraticCurveTo(-11 + sway, 18, -4, 38);
+  ctx.lineTo(2, 38);
+  ctx.quadraticCurveTo(-1, 18, 2, -5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(46, -5);
+  ctx.quadraticCurveTo(53 - sway, 18, 46, 38);
+  ctx.lineTo(52, 38);
+  ctx.quadraticCurveTo(55, 18, 52, -5);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawFrame(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  // shadow
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.fillRect(2, 2, 22, 26);
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(0, 0, 22, 26);
+  ctx.fillStyle = "#FFFDF7";
+  ctx.fillRect(3, 3, 16, 20);
+  // a small hand-drawn keepsake inside -- a heart, kept simple and warm
+  ctx.strokeStyle = "rgba(255,125,160,0.6)";
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(11, 18);
+  ctx.bezierCurveTo(4, 11, 6, 6, 11, 10);
+  ctx.bezierCurveTo(16, 6, 18, 11, 11, 18);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawWallClock(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.arc(1, 1, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#8A6470";
+  ctx.beginPath();
+  ctx.arc(0, 0, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#FFFDF7";
+  ctx.beginPath();
+  ctx.arc(0, 0, 9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(92,58,71,0.4)";
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * 7.5, Math.sin(a) * 7.5, 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.strokeStyle = "#5C3A47";
+  ctx.lineWidth = 1.2;
+  ctx.lineCap = "round";
+  const hourAngle = t * 0.05;
+  const minAngle = t * 0.3;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(Math.cos(hourAngle) * 4, Math.sin(hourAngle) * 4);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(Math.cos(minAngle) * 6.5, Math.sin(minAngle) * 6.5);
+  ctx.stroke();
+  ctx.fillStyle = "#5C3A47";
+  ctx.beginPath();
+  ctx.arc(0, 0, 1, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawChair(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.14)";
+  ctx.beginPath();
+  ctx.ellipse(13, 32, 12, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // backrest
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(4, 0, 18, 6);
+  ctx.fillRect(4, 0, 4, 20);
+  ctx.fillRect(18, 0, 4, 20);
+  // seat cushion
+  ctx.fillStyle = "#FF97B4";
+  roundRectFill(ctx, 2, 16, 22, 6, 2);
+  // legs
+  ctx.fillStyle = "#5C3A47";
+  ctx.fillRect(4, 22, 3, 10);
+  ctx.fillRect(21, 22, 3, 10);
+  ctx.restore();
+}
+
+function drawWritingDesk(x, y, w, h, t) {
+  ctx.save();
+  // ground shadow
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(x + w / 2, y + h + 8, w / 2 + 4, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // legs
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(x + 5, y + h - 4, 5, 16);
+  ctx.fillRect(x + w - 10, y + h - 4, 5, 16);
+
+  // desktop
+  ctx.fillStyle = "#C99A55";
+  roundRectFill(ctx, x, y, w, h, 4);
+  ctx.fillStyle = "rgba(255,255,255,0.15)";
+  ctx.fillRect(x + 2, y + 2, w - 4, 3);
+  ctx.fillStyle = "rgba(92,58,71,0.25)";
+  ctx.fillRect(x, y + h - 6, w, 6);
+
+  // drawer with a little pull
+  ctx.strokeStyle = "rgba(92,58,71,0.35)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + w / 2 - 15, y + h - 16, 30, 9);
+  ctx.fillStyle = "#5C3A47";
+  ctx.beginPath();
+  ctx.arc(x + w / 2, y + h - 11.5, 1.4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // a small tidy stack of letters on the desk
+  ctx.fillStyle = "#FFFDF7";
+  ctx.save();
+  ctx.translate(x + 10, y + 6);
+  ctx.rotate(-0.08);
+  ctx.fillRect(0, 0, 18, 13);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(x + 15, y + 9);
+  ctx.rotate(0.1);
+  ctx.fillRect(0, 0, 18, 13);
+  ctx.restore();
+  ctx.strokeStyle = "rgba(92,58,71,0.2)";
+  ctx.lineWidth = 0.8;
+  ctx.strokeRect(x + 15, y + 9, 18, 13);
+
+  // inkwell and quill
+  ctx.fillStyle = "#3A2E4D";
+  ctx.beginPath();
+  ctx.ellipse(x + w - 18, y + 12, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#E3B873";
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(x + w - 18, y + 10);
+  ctx.lineTo(x + w - 11, y - 6);
+  ctx.stroke();
+
+  // a small flickering candle
+  const flick = prefersReducedMotion ? 0.7 : 0.6 + 0.4 * Math.sin(t * 6 + x);
+  const candleX = x + w - 30;
+  const candleY = y - 2;
+  const glowGrad = ctx.createRadialGradient(candleX + 2.5, candleY - 2, 1, candleX + 2.5, candleY - 2, 16);
+  glowGrad.addColorStop(0, `rgba(255,224,150,${0.42 * flick})`);
+  glowGrad.addColorStop(1, "rgba(255,224,150,0)");
+  ctx.fillStyle = glowGrad;
+  ctx.beginPath();
+  ctx.arc(candleX + 2.5, candleY - 2, 16, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#FFFDF7";
+  ctx.fillRect(candleX, candleY, 5, 10);
+  ctx.fillStyle = "#E3B873";
+  ctx.beginPath();
+  ctx.ellipse(candleX + 2.5, candleY - 3, 2 * flick, 3 * flick, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawPottedPlant(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.14)";
+  ctx.beginPath();
+  ctx.ellipse(10, 33, 11, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // pot
+  ctx.fillStyle = "#C99A55";
+  ctx.beginPath();
+  ctx.moveTo(0, 20);
+  ctx.lineTo(20, 20);
+  ctx.lineTo(17, 32);
+  ctx.lineTo(3, 32);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "rgba(92,58,71,0.2)";
+  ctx.fillRect(0, 19, 20, 3);
+  // leaves
+  ctx.fillStyle = "#7BAA63";
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.ellipse(10 + Math.cos(a) * 6, 10 + Math.sin(a) * 6, 5, 3, a, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#9FD08A";
+  ctx.beginPath();
+  ctx.ellipse(10, 6, 4, 4, 0, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
@@ -1730,14 +2653,28 @@ function drawBouquet(x, y, t) {
 function drawDecorItem(item, t) {
   switch (item.type) {
     case "tree": drawTree(item.x, item.y, t, item.flip); break;
+    case "cherryTree": drawCherryTree(item.x, item.y, t, item.flip); break;
     case "bush": drawBush(item.x, item.y, t); break;
     case "plant": drawPlant(item.x, item.y, t); break;
     case "leafPatch": drawLeafPatch(item.x, item.y, t); break;
-    case "gardenFlower": drawGardenFlower(item.x, item.y, t); break;
+    case "gardenFlower": drawGardenFlower(item.x, item.y, t, item.color); break;
+    case "rockCluster": drawRockCluster(item.x, item.y); break;
+    case "birdbath": drawBirdbath(item.x, item.y, t); break;
+    case "flowerbed": drawFlowerbed(item.x, item.y); break;
+    case "steppingStone": drawSteppingStone(item.x, item.y); break;
+    case "trellis": drawTrellis(item.x, item.y, t); break;
+    case "butterfly": drawButterfly(item.x, item.y, t, item.seed || 0); break;
     case "bookshelf": drawBookshelf(item.x, item.y); break;
     case "rug": drawRug(item.x, item.y, item.w, item.h); break;
     case "papers": drawPapers(item.x, item.y); break;
     case "lamp": drawLamp(item.x, item.y, t); break;
+    case "wallBand": drawWallBand(item.x, item.y, item.w, item.h, item.color); break;
+    case "window": drawWindow(item.x, item.y, t); break;
+    case "frame": drawFrame(item.x, item.y); break;
+    case "wallClock": drawWallClock(item.x, item.y, t); break;
+    case "chair": drawChair(item.x, item.y); break;
+    case "writingDesk": drawWritingDesk(item.x, item.y, item.w, item.h, t); break;
+    case "pottedPlant": drawPottedPlant(item.x, item.y); break;
     case "guitar": drawGuitar(item.x, item.y); break;
     case "piano": drawPiano(item.x, item.y); break;
     case "amp": drawAmp(item.x, item.y); break;
