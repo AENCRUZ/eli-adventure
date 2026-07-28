@@ -573,6 +573,37 @@ body.touch-enabled .touch-controls {
 }
 
 /* =========================================================
+   ROOM INTRO / MISSION BANNER
+   A short line shown for a few seconds whenever a room is
+   entered, like a quiet little objective card.
+========================================================= */
+.room-intro {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  max-width: 88%;
+  background: rgba(255, 248, 244, 0.94);
+  border: 2px solid var(--plum);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--plum);
+  text-align: center;
+  box-shadow: 3px 3px 0 rgba(92, 58, 71, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  z-index: 5;
+}
+
+.room-intro.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(4px);
+}
+
+/* =========================================================
    MODALS (letter, music, settings)
 ========================================================= */
 .modal {
@@ -607,16 +638,23 @@ body.touch-enabled .touch-controls {
 }
 
 .modal-close {
-  display: block;
-  margin: 0 0 18px;
-  font-weight: 600;
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 4px;
+  margin: 0 0 28px;
+  font-weight: 700;
   font-size: 14px;
-  color: var(--plum-soft);
+  color: var(--plum);
+  background: var(--blush);
+  padding: 8px 16px;
+  border-radius: 999px;
   text-align: left;
 }
 
 .modal-close:hover {
-  color: var(--rose);
+  color: var(--white);
+  background: var(--rose);
 }
 
 /* --- letter modal: envelope + growing paper, same mechanism
@@ -631,6 +669,7 @@ body.touch-enabled .touch-controls {
   width: 240px;
   height: 156px;
   margin: 0 auto;
+  transition: width 0.6s ease, height 0.6s ease;
 }
 
 .envelope-back {
@@ -715,6 +754,11 @@ body.touch-enabled .touch-controls {
   50%      { opacity: 0; }
 }
 
+.envelope.open {
+  width: min(100%, 380px);
+  height: min(62vh, 460px);
+}
+
 .envelope.open .envelope-flap {
   transform: rotateX(180deg);
 }
@@ -725,9 +769,11 @@ body.touch-enabled .touch-controls {
 }
 
 .envelope.open .envelope-paper {
-  width: min(94%, 380px);
-  height: min(52vh, 420px);
-  transform: translateX(-50%) translateY(-64%);
+  left: 50%;
+  bottom: 4%;
+  width: 90%;
+  height: 90%;
+  transform: translateX(-50%);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   z-index: 5;
