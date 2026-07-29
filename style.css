@@ -658,10 +658,40 @@ body.touch-enabled .touch-controls {
 }
 
 /* --- letter modal: envelope + growing paper, same mechanism
-       as the original site --- */
+       as the original site, dressed up as a keepsake writing desk --- */
+
+/* the whole card gets a warmer, dimly-lit "desk" backdrop instead of
+   the plain cream panel used elsewhere */
+.letter-modal-panel {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,183,198,0.35), transparent 42%),
+    radial-gradient(circle at 85% 88%, rgba(227,184,115,0.25), transparent 46%),
+    linear-gradient(165deg, #FBEFE6 0%, var(--cream) 55%, #FCE7EE 100%);
+  overflow: hidden;
+}
+
 .envelope-scene {
-  margin: 10px auto 16px;
-  perspective: 1000px;
+  position: relative;
+  margin: 14px auto 18px;
+  perspective: 1200px;
+}
+
+/* soft drifting sparkles/petals around the envelope, purely atmospheric */
+.envelope-ambient {
+  position: absolute;
+  font-size: 14px;
+  color: var(--gold);
+  opacity: 0.7;
+  pointer-events: none;
+  animation: envelopeDrift 5s ease-in-out infinite;
+}
+.envelope-ambient.ambient-1 { top: -6px;  left: 6%;  font-size: 12px; animation-delay: 0s; }
+.envelope-ambient.ambient-2 { top: 30%;   right: 2%; font-size: 18px; animation-delay: 1.2s; }
+.envelope-ambient.ambient-3 { bottom: 4%; left: 0%;  font-size: 13px; color: var(--rose); animation-delay: 2.4s; }
+
+@keyframes envelopeDrift {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.55; }
+  50%      { transform: translateY(-10px) rotate(12deg); opacity: 0.95; }
 }
 
 .envelope {
@@ -672,22 +702,110 @@ body.touch-enabled .touch-controls {
   transition: width 0.6s ease, height 0.6s ease;
 }
 
+/* a thin "par avion" striped border gives the closed envelope a
+   well-travelled, keepsake feel */
 .envelope-back {
   position: absolute;
   inset: 0;
-  border-radius: 10px;
-  background: linear-gradient(160deg, var(--blush), var(--pink));
+  border-radius: 12px;
+  border: 5px solid transparent;
+  background:
+    linear-gradient(160deg, var(--blush), var(--pink)) padding-box,
+    repeating-linear-gradient(135deg,
+      var(--rose) 0 8px,
+      var(--cream) 8px 16px,
+      var(--gold) 16px 24px,
+      var(--cream) 24px 32px) border-box;
   box-shadow: var(--shadow-soft);
+  transition: opacity 0.5s ease;
 }
 
 .envelope-front {
   position: absolute;
   left: 0; right: 0; bottom: 0;
   height: 100%;
-  border-radius: 0 0 10px 10px;
+  border-radius: 0 0 8px 8px;
   background: linear-gradient(160deg, var(--white), var(--blush));
   clip-path: polygon(0 22%, 50% 55%, 100% 22%, 100% 100%, 0 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
   z-index: 2;
+}
+
+/* a little handwritten "to" note on the front, like an old keepsake letter */
+.envelope-address {
+  position: absolute;
+  left: 13%;
+  bottom: 14%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-family: var(--font-hand);
+  color: var(--plum-soft);
+  transition: opacity 0.4s ease;
+}
+.envelope-address-to {
+  font-size: 15px;
+  font-weight: 600;
+}
+.envelope-address-line {
+  display: block;
+  width: 78px;
+  height: 1px;
+  background: rgba(92, 58, 71, 0.28);
+}
+.envelope-address-line.short { width: 46px; }
+
+/* a faint postmark stamped over the corner, like it really came in the mail */
+.envelope-postmark {
+  position: absolute;
+  top: 15%;
+  right: 12%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(92, 58, 71, 0.32);
+  transform: rotate(-16deg);
+  z-index: 2;
+  transition: opacity 0.4s ease;
+}
+.envelope-postmark::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(92, 58, 71, 0.32);
+  border-radius: 50%;
+}
+.envelope-postmark::after {
+  content: "❀ ❀ ❀";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5px;
+  letter-spacing: 1px;
+  color: rgba(92, 58, 71, 0.32);
+}
+
+/* a tiny postage stamp tucked in the corner */
+.envelope-stamp {
+  position: absolute;
+  top: 12%;
+  right: 8%;
+  width: 30px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border-radius: 3px;
+  background: linear-gradient(160deg, var(--white), var(--blush));
+  border: 2px dashed var(--gold-deep);
+  transform: rotate(7deg);
+  box-shadow: 0 2px 5px rgba(92, 58, 71, 0.2);
+  z-index: 2;
+  transition: opacity 0.4s ease;
 }
 
 .envelope-flap {
@@ -700,14 +818,27 @@ body.touch-enabled .touch-controls {
   transition: transform 0.8s cubic-bezier(.34,1.2,.64,1);
   z-index: 3;
   border-radius: 10px 10px 0 0;
+  box-shadow: inset 0 -6px 10px -6px rgba(92, 58, 71, 0.35);
 }
 
+/* the seal now reads as a pressed wax medallion rather than a flat emoji */
 .envelope-seal {
   position: absolute;
   top: 42%;
   left: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 17px;
+  background: radial-gradient(circle at 35% 30%, var(--pink-deep), var(--rose) 55%, #B84867 100%);
+  box-shadow:
+    0 3px 6px rgba(92, 58, 71, 0.45),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.35);
   transform: translate(-50%, -50%);
-  font-size: 20px;
   z-index: 4;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -718,15 +849,29 @@ body.touch-enabled .touch-controls {
   bottom: 6%;
   width: 84%;
   height: 82%;
-  background: var(--white);
-  border-radius: 6px;
-  box-shadow: 0 8px 20px rgba(92,58,71,0.2);
-  padding: 18px 16px;
+  background:
+    linear-gradient(90deg, transparent 30px, rgba(255, 125, 160, 0.22) 30px, rgba(255, 125, 160, 0.22) 31px, transparent 31px),
+    repeating-linear-gradient(var(--white) 0 27px, rgba(227, 184, 115, 0.16) 27px 28px),
+    var(--white);
+  border-radius: 3px 10px 10px 10px;
+  box-shadow: 0 8px 20px rgba(92, 58, 71, 0.2);
+  padding: 20px 18px 18px 34px;
   text-align: left;
   overflow: hidden;
-  transform: translateX(-50%) translateY(6%);
+  transform: translateX(-50%) translateY(6%) rotate(-0.6deg);
   transition: transform 0.9s cubic-bezier(.22,1,.36,1), width 0.5s ease, height 0.5s ease;
   z-index: 1;
+}
+
+.paper-flourish {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 15px;
+  color: var(--gold-deep);
+  opacity: 0.55;
+  transform: rotate(8deg);
+  pointer-events: none;
 }
 
 .handwritten {
@@ -768,12 +913,18 @@ body.touch-enabled .touch-controls {
   transform: translate(-50%, -50%) scale(0.4);
 }
 
+.envelope.open .envelope-address,
+.envelope.open .envelope-postmark,
+.envelope.open .envelope-stamp {
+  opacity: 0;
+}
+
 .envelope.open .envelope-paper {
   left: 50%;
   bottom: 4%;
   width: 90%;
   height: 90%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) rotate(0deg);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   z-index: 5;
@@ -862,7 +1013,10 @@ body.touch-enabled .touch-controls {
   position: fixed;
   inset: 0;
   z-index: 30;
-  background: radial-gradient(circle at 50% 30%, #FFE9F0 0%, var(--cream) 70%);
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255,211,224,0.5), transparent 45%),
+    radial-gradient(circle at 82% 85%, rgba(227,184,115,0.3), transparent 48%),
+    radial-gradient(circle at 50% 30%, #FFE9F0 0%, var(--cream) 70%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -885,12 +1039,60 @@ body.touch-enabled .touch-controls {
   border: 3px solid var(--plum);
   border-radius: var(--radius-lg);
   box-shadow: 6px 6px 0 var(--plum);
-  padding: 30px 26px;
+  padding: 44px 26px 30px;
   text-align: center;
+  overflow: visible;
 }
+
+/* a thin gold inner border, like a keepsake invitation card */
+.finale-message::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1.5px dashed rgba(227, 184, 115, 0.5);
+  border-radius: calc(var(--radius-lg) - 8px);
+  pointer-events: none;
+}
+
+/* a little wax-seal-style medallion pinned at the top of the card,
+   echoing the letter room's seal */
+.finale-badge {
+  position: absolute;
+  top: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: radial-gradient(circle at 35% 30%, var(--pink-deep), var(--rose) 55%, #B84867 100%);
+  box-shadow:
+    0 4px 8px rgba(92, 58, 71, 0.45),
+    inset 0 -3px 5px rgba(0, 0, 0, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.35),
+    0 0 0 4px var(--white);
+  z-index: 2;
+}
+
+.finale-ambient {
+  position: absolute;
+  font-size: 15px;
+  color: var(--gold);
+  opacity: 0.7;
+  pointer-events: none;
+  animation: envelopeDrift 5s ease-in-out infinite;
+}
+.finale-ambient.ambient-1 { top: 4%;   left: 6%;  font-size: 13px; animation-delay: 0s; }
+.finale-ambient.ambient-2 { top: 12%;  right: 4%; font-size: 17px; animation-delay: 1.1s; }
+.finale-ambient.ambient-3 { bottom: 8%; left: 8%; font-size: 12px; color: var(--rose); animation-delay: 2.2s; }
 
 .finale-message .handwritten {
   font-size: 22px;
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================================================
