@@ -172,12 +172,23 @@
       <button class="modal-close" data-close-modal="modal-letter">← Back</button>
 
       <div class="envelope-scene">
+        <span class="envelope-ambient ambient-1" aria-hidden="true">✦</span>
+        <span class="envelope-ambient ambient-2" aria-hidden="true">🌸</span>
+        <span class="envelope-ambient ambient-3" aria-hidden="true">✧</span>
         <div id="envelope" class="envelope">
           <div class="envelope-back"></div>
+          <div class="envelope-address" aria-hidden="true">
+            <span class="envelope-address-to">Special Delivery</span>
+            <span class="envelope-address-line"></span>
+            <span class="envelope-address-line short"></span>
+          </div>
+          <div class="envelope-postmark" aria-hidden="true"></div>
+          <div class="envelope-stamp" aria-hidden="true">💗</div>
           <div class="envelope-flap"></div>
           <div class="envelope-front"></div>
           <div class="envelope-seal">🤍</div>
           <div class="envelope-paper" id="envelope-paper">
+            <span class="paper-flourish" aria-hidden="true">❀</span>
             <p id="letter-text" class="handwritten" aria-live="polite"></p>
           </div>
         </div>
@@ -230,6 +241,10 @@
   <div id="finale-overlay" class="finale-overlay hidden">
     <canvas id="confetti-canvas"></canvas>
     <div class="finale-message">
+      <span class="finale-ambient ambient-1" aria-hidden="true">✦</span>
+      <span class="finale-ambient ambient-2" aria-hidden="true">🎈</span>
+      <span class="finale-ambient ambient-3" aria-hidden="true">✧</span>
+      <div class="finale-badge" aria-hidden="true">🎉</div>
       <p class="handwritten" id="finale-text"></p>
       <button id="btn-finale-close" class="pixel-btn primary">🤍</button>
     </div>
