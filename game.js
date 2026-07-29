@@ -491,7 +491,9 @@ const rooms = {
       // backdrop: a climbing trellis, a rock cluster and a birdbath give
       // the room some structure instead of being an open field of grass
       { type: "trellis", x: 176, y: 0 },
-      { type: "rockCluster", x: 26, y: 26 },
+      { type: "trellis", x: 126, y: 0 },
+      { type: "rockCluster", x: 30, y: 26 },
+      { type: "rockCluster", x: 350, y: 220 },
       { type: "birdbath", x: 336, y: 186 },
 
       { type: "tree", x: 5, y: 35 },
@@ -500,6 +502,8 @@ const rooms = {
       { type: "cherryTree", x: 310, y: 18, flip: true },
       { type: "cherryTree", x: 145, y: 213 },
       { type: "cherryTree", x: 250, y: 215, flip: true },
+      { type: "cherryTree", x: 22, y: 118 },
+      { type: "cherryTree", x: 380, y: 115, flip: true },
       { type: "bush", x: 20, y: 190 },
       { type: "bush", x: 366, y: 60 },
       { type: "bush", x: 238, y: 26 },
@@ -507,7 +511,7 @@ const rooms = {
       { type: "plant", x: 100, y: 200 },
       { type: "plant", x: 200, y: 120 },
       { type: "plant", x: 350, y: 150 },
-      { type: "leafPatch", x: 30, y: 120 },
+      { type: "leafPatch", x: 40, y: 135 },
       { type: "leafPatch", x: 260, y: 40 },
       { type: "leafPatch", x: 220, y: 150 },
       { type: "gardenFlower", x: 110, y: 120 },
@@ -521,6 +525,8 @@ const rooms = {
       { type: "steppingStone", x: 190, y: 180 },
       { type: "steppingStone", x: 207, y: 163 },
       { type: "steppingStone", x: 195, y: 146 },
+      { type: "steppingStone", x: 105, y: 100 },
+      { type: "steppingStone", x: 135, y: 125 },
 
       // soil beds grounding each interactable flower, drawn just beneath it
       { type: "flowerbed", x: 68, y: 84 },
@@ -564,19 +570,21 @@ const rooms = {
 
       { type: "bookshelf", x: 2, y: 10 },
       { type: "bookshelf", x: 350, y: 10 },
+      { type: "bookshelf", x: 10, y: 130 },
+      { type: "bookshelf", x: 340, y: 130 },
       { type: "lamp", x: 300, y: 40 },
-      { type: "lamp", x: 60, y: 40 },
+      { type: "lamp", x: 72, y: 40 },
 
       // little reading corner, tucked against the wall so the room feels lived-in
-      { type: "pottedPlant", x: 16, y: 158 },
-      { type: "pottedPlant", x: 362, y: 158 },
+      { type: "pottedPlant", x: 80, y: 140 },
+      { type: "pottedPlant", x: 290, y: 140 },
 
       // the writing desk itself, facing the window, with a chair pulled in
       { type: "chair", x: 187, y: 42 },
       { type: "writingDesk", x: 158, y: 62, w: 84, h: 44 },
 
       { type: "rug", x: 128, y: 128, w: 144, h: 74 },
-      { type: "papers", x: 122, y: 148 },
+      { type: "papers", x: 215, y: 80 },
       { type: "papers", x: 252, y: 162 },
     ],
     doors: [exitDoor("hub")],
@@ -594,16 +602,52 @@ const rooms = {
       { x: 155, y: 132, w: 90, h: 24, hidden: true },
     ],
     decor: [
+      // back wall, dressed like the other indoor rooms so it reads as a
+      // real wall instead of open floor -- a window, framed vinyl
+      // keepsakes, and warm sconce lamps
+      { type: "wallBand", x: 0, y: 0, w: 400, h: 40, color: "#F6D2E0" },
+      { type: "window", x: 176, y: 2 },
+      { type: "recordFrame", x: 88, y: 8 },
+      { type: "recordFrame", x: 300, y: 8 },
+      { type: "foamPanel", x: 118, y: 16 },
+      { type: "foamPanel", x: 252, y: 16 },
+      { type: "fairyLights", x: 28, y: 1, w: 142 },
+      { type: "fairyLights", x: 230, y: 1, w: 142 },
+      { type: "lamp", x: 300, y: 42 },
+      { type: "lamp", x: 62, y: 42 },
+
+      // a little mirrorball catching the window light in the middle of the room
+      { type: "discoBall", x: 200, y: 50 },
+
       { type: "guitar", x: 20, y: 20 },
-      { type: "guitar", x: 356, y: 20 },
-      { type: "piano", x: 20, y: 150 },
+      { type: "electricGuitar", x: 356, y: 20 },
+
+      // a rug grounding the hangout area, with the piano, records and a
+      // mic stand set up around it like an actual little studio corner
+      { type: "rug", x: 100, y: 170, w: 200, h: 58 },
+      { type: "piano", x: 20, y: 120 },
+      { type: "vinylCrate", x: 40, y: 185 },
+      { type: "micStand", x: 305, y: 145 },
+      { type: "stool", x: 335, y: 185 },
+      { type: "stool", x: 86, y: 65 },
       { type: "amp", x: 340, y: 150 },
-      { type: "notesWallpaper", x: 0, y: 0 },
+      { type: "neonSign", x: 315, y: 92 },
+
+      // a pair of studio monitors flanking the radio table, like an
+      // actual little mixing station instead of one lone speaker
+      { type: "studioMonitor", x: 122, y: 128 },
+      { type: "studioMonitor", x: 256, y: 128 },
+
+      // the radio itself, sitting properly on its table rather than
+      // floating as a bare icon
       { type: "table", x: 155, y: 110, w: 90, h: 46 },
+      { type: "radioBox", x: 171, y: 70 },
+
+      { type: "notesWallpaper", x: 0, y: 0 },
     ],
     doors: [exitDoor("hub")],
     interactables: [
-      { x: 180, y: 78, w: 40, h: 40, type: "radio", label: "📻" },
+      { x: 180, y: 105, w: 40, h: 40, type: "radio", label: "📻" },
     ],
   },
 
@@ -614,13 +658,17 @@ const rooms = {
       { x: 158, y: 152, w: 84, h: 18, hidden: true },
     ],
     decor: [
+      { type: "spotlight", x: 200, y: 120, r: 70 },
+      { type: "giftTable", x: 158, y: 130, w: 84, h: 40 },
+      { type: "giftBox", x: 174, y: 126, size: 16, color: "#8FB3D9" },
+      { type: "giftBox", x: 226, y: 128, size: 14, color: "#F5C77E" },
+      { type: "fairyLights", x: 150, y: 56, w: 100 },
       { type: "balloon", x: 30, y: 10, color: "#FF97B4" },
       { type: "balloon", x: 60, y: 30, color: "#FFD3E0" },
       { type: "balloon", x: 340, y: 10, color: "#8FB3D9" },
       { type: "balloon", x: 365, y: 34, color: "#C9A6E0" },
       { type: "balloon", x: 200, y: 6, color: "#F5C77E" },
       { type: "bunting", x: 0, y: 0 },
-      { type: "table", x: 158, y: 130, w: 84, h: 40 },
     ],
     doors: [exitDoor("hub")],
     interactables: [
@@ -1093,12 +1141,29 @@ const PARTICLE_STYLES = {
   garden: { symbol: "🌸", count: 6, speedY: 9, sway: 12, size: [8, 12], spawnEvery: 0.7 },
   music: { symbol: "♪", count: 5, speedY: -9, sway: 9, size: [9, 13], spawnEvery: 0.8 },
   letter: { symbol: "·", count: 10, speedY: 4, sway: 5, size: [3, 5], spawnEvery: 0.4 },
+  // rising party sparkles in a few colors, so the gift room feels a little
+  // more alive than the single-symbol particles used elsewhere
+  giftArea: {
+    symbols: ["✦", "✧", "●"],
+    colors: ["#FF97B4", "#F5C77E", "#8FB3D9", "#C9A6E0", "#FFFFFF"],
+    count: 12,
+    speedY: -11,
+    sway: 15,
+    size: [4, 9],
+    spawnEvery: 0.3,
+  },
 };
 
 let roomParticles = [];
 let particleSpawnAccum = 0;
 
 function spawnRoomParticle(roomId, style) {
+  const symbol = style.symbols
+    ? style.symbols[Math.floor(Math.random() * style.symbols.length)]
+    : style.symbol;
+  const color = style.colors
+    ? style.colors[Math.floor(Math.random() * style.colors.length)]
+    : "#5C3A47";
   roomParticles.push({
     room: roomId,
     x: Math.random() * GAME_W,
@@ -1107,7 +1172,8 @@ function spawnRoomParticle(roomId, style) {
     sway: style.sway,
     phase: Math.random() * Math.PI * 2,
     size: style.size[0] + Math.random() * (style.size[1] - style.size[0]),
-    symbol: style.symbol,
+    symbol,
+    color,
     opacity: 0.3 + Math.random() * 0.3,
   });
 }
@@ -1145,7 +1211,7 @@ function drawParticles() {
     const x = p.x + Math.sin(p.phase * 1.3) * p.sway;
     ctx.globalAlpha = p.opacity;
     ctx.font = `${p.size}px sans-serif`;
-    ctx.fillStyle = "#5C3A47";
+    ctx.fillStyle = p.color || "#5C3A47";
     ctx.fillText(p.symbol, x, p.y);
   }
   ctx.globalAlpha = 1;
@@ -2507,25 +2573,149 @@ function drawPottedPlant(x, y) {
   ctx.restore();
 }
 
-function drawGuitar(x, y) {
+function drawAcousticGuitar(x, y) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(-0.15);
+
+  // neck
   ctx.strokeStyle = "#8A6470";
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(6, 40);
-  ctx.lineTo(6, 6);
+  ctx.lineTo(6, 4);
   ctx.stroke();
+
+  // headstock with little tuning pegs
+  ctx.fillStyle = "#8A6470";
+  ctx.beginPath();
+  ctx.ellipse(6, 1, 4.5, 5.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#C99A55";
+  ctx.beginPath();
+  ctx.arc(2, -2, 1, 0, Math.PI * 2);
+  ctx.arc(10, -2, 1, 0, Math.PI * 2);
+  ctx.arc(2, 3, 1, 0, Math.PI * 2);
+  ctx.arc(10, 3, 1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // warm wood-toned figure-8 body
   ctx.fillStyle = "#C99A55";
   ctx.beginPath();
   ctx.ellipse(6, 44, 9, 12, 0, 0, Math.PI * 2);
   ctx.ellipse(6, 60, 11, 13, 0, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = "rgba(92,58,71,0.3)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(6, 44, 9, 12, 0, 0, Math.PI * 2);
+  ctx.ellipse(6, 60, 11, 13, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // sound hole
   ctx.fillStyle = "#5C3A47";
   ctx.beginPath();
   ctx.arc(6, 50, 3.5, 0, Math.PI * 2);
   ctx.fill();
+
+  // bridge
+  ctx.fillStyle = "#3A2E4D";
+  ctx.fillRect(2, 66, 8, 2);
+
+  // strings running the length of the neck and body
+  ctx.strokeStyle = "rgba(255,253,247,0.5)";
+  ctx.lineWidth = 0.6;
+  for (let i = -1; i <= 1; i++) {
+    ctx.beginPath();
+    ctx.moveTo(6 + i * 1.4, 4);
+    ctx.lineTo(6 + i * 1.4, 66);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+function addRoundRectPath(path, x, y, w, h, r) {
+  path.moveTo(x + r, y);
+  path.arcTo(x + w, y, x + w, y + h, r);
+  path.arcTo(x + w, y + h, x, y + h, r);
+  path.arcTo(x, y + h, x, y, r);
+  path.arcTo(x, y, x + w, y, r);
+  path.closePath();
+}
+
+function drawElectricGuitar(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(-0.15);
+
+  // slim neck -- width matches the narrow base of the headstock (4 to 9)
+  ctx.fillStyle = "#3A2E4D";
+  ctx.fillRect(4, 2, 5, 44);
+
+  // headstock now tapers FROM the neck width, flaring out toward the tip,
+  // with all 6 tuning pegs inline along one edge -- true Strat-style
+  ctx.fillStyle = "#3A2E4D";
+  ctx.beginPath();
+  ctx.moveTo(4, 2);
+  ctx.lineTo(9, 2);
+  ctx.lineTo(14, -12);
+  ctx.lineTo(1, -12);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#C99A55";
+  for (let i = 0; i < 6; i++) {
+    const t = i / 5;
+    const px = 9 + 5 * t + 1.2;   // walk the flared edge, offset outward
+    const py = 2 - 14 * t;
+    ctx.beginPath();
+    ctx.arc(px, py, 0.9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // solid double-cutaway body: outer rounded shape with TWO horn cutouts
+  // (one each side of the neck), built as a single path so the compositing
+  // bug from `destination-out` can't touch the neck/headstock pixels
+  const bodyPath = new Path2D();
+  addRoundRectPath(bodyPath, -8, 42, 30, 34, 7);
+  bodyPath.arc(-5, 42, 9, 0, Math.PI * 2);  // bass-side horn
+  bodyPath.arc(16, 40, 7, 0, Math.PI * 2);  // treble-side horn
+
+  ctx.fillStyle = "#9f242c";
+  ctx.fill(bodyPath, "evenodd");
+
+  // highlight, clipped to the body so it can't spill into the cutaway gaps
+  ctx.save();
+  ctx.clip(bodyPath, "evenodd");
+  ctx.fillStyle = "rgba(255,255,255,0.18)";
+  ctx.fillRect(-8, 43, 30, 2);
+  ctx.restore();
+
+  // pickups
+  ctx.fillStyle = "#1E1730";
+  ctx.fillRect(-2, 54, 12, 3);
+  ctx.fillRect(-2, 62, 12, 3);
+
+  // volume + tone knobs
+  ctx.fillStyle = "#C99A55";
+  ctx.beginPath();
+  ctx.arc(14, 68, 2.2, 0, Math.PI * 2);
+  ctx.arc(14, 74, 2.2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // strings, drawn last so they sit on top of everything, running the full
+  // length from the nut down over the pickups to the bridge
+  ctx.strokeStyle = "rgba(255,253,247,0.6)";
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 5; i++) {
+    const sx = 5 + i * 0.9;
+    ctx.beginPath();
+    ctx.moveTo(sx, -10);
+    ctx.lineTo(sx, 72);
+    ctx.stroke();
+  }
+
   ctx.restore();
 }
 
@@ -2570,6 +2760,445 @@ function drawNotesWallpaper(t) {
   ctx.restore();
 }
 
+/* =========================================================================
+   MUSIC ROOM DRESSING
+   A proper vintage radio set on its table, a mirrorball hanging from the
+   ceiling, a mic stand and a crate of records -- so the room reads like an
+   actual little studio hangout instead of a couple of instruments on an
+   open floor.
+========================================================================= */
+function drawRadioBox(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // contact shadow on the table below
+  ctx.fillStyle = "rgba(92,58,71,0.18)";
+  ctx.beginPath();
+  ctx.ellipse(29, 42, 30, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // telescoping antenna, gently swaying like it's picking up a signal
+  const sway = prefersReducedMotion ? 0 : Math.sin(t * 1.6) * 2;
+  ctx.strokeStyle = "#8A6470";
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(48, 4);
+  ctx.lineTo(48, -16);
+  ctx.lineTo(48 + sway, -28);
+  ctx.stroke();
+
+  // body + inset panel
+  ctx.fillStyle = "#8A6470";
+  roundRectFill(ctx, 0, 4, 58, 36, 6);
+  ctx.fillStyle = "#5C3A47";
+  roundRectFill(ctx, 2, 6, 54, 32, 5);
+  ctx.fillStyle = "rgba(255,255,255,0.12)";
+  ctx.fillRect(3, 7, 52, 3);
+
+  // left speaker grille, concentric rings
+  ctx.fillStyle = "#3A2E4D";
+  ctx.beginPath();
+  ctx.arc(16, 23, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,253,247,0.3)";
+  ctx.lineWidth = 0.8;
+  for (let ring = 3; ring <= 9; ring += 3) {
+    ctx.beginPath();
+    ctx.arc(16, 23, ring, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // right panel: a little glowing tuner dial + two knobs
+  const pulse = prefersReducedMotion ? 0.75 : 0.55 + 0.45 * Math.sin(t * 3);
+  ctx.fillStyle = "#FFFDF7";
+  roundRectFill(ctx, 32, 11, 22, 9, 2);
+  ctx.fillStyle = `rgba(255,125,160,${pulse})`;
+  ctx.fillRect(32 + 8 + Math.sin(t * 0.7) * 5, 12.5, 2, 6);
+  ctx.fillStyle = "#C99A55";
+  ctx.beginPath();
+  ctx.arc(38, 28, 3.6, 0, Math.PI * 2);
+  ctx.arc(51, 28, 3.6, 0, Math.PI * 2);
+  ctx.fill();
+
+  // warm "powered on" glow spilling from the speaker
+  const grad = ctx.createRadialGradient(16, 23, 1, 16, 23, 22);
+  grad.addColorStop(0, `rgba(255,224,150,${0.35 * pulse})`);
+  grad.addColorStop(1, "rgba(255,224,150,0)");
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(16, 23, 22, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+}
+
+function drawDiscoBall(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // wire down from the ceiling
+  ctx.strokeStyle = "rgba(92,58,71,0.4)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, -46);
+  ctx.lineTo(0, -6);
+  ctx.stroke();
+
+  // soft light spill beneath it
+  const glow = ctx.createRadialGradient(0, 8, 2, 0, 8, 28);
+  glow.addColorStop(0, "rgba(255,255,255,0.2)");
+  glow.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 8, 28, 0, Math.PI * 2);
+  ctx.fill();
+
+  // mirrored ball body
+  ctx.fillStyle = "#C7D2DB";
+  ctx.beginPath();
+  ctx.arc(0, 8, 10, 0, Math.PI * 2);
+  ctx.fill();
+
+  // facet grid
+  ctx.strokeStyle = "rgba(92,58,71,0.25)";
+  ctx.lineWidth = 0.6;
+  for (let i = -2; i <= 2; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-9.5, 8 + i * 3.6);
+    ctx.lineTo(9.5, 8 + i * 3.6);
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(0, -2);
+  ctx.lineTo(0, 18);
+  ctx.moveTo(-6, 1);
+  ctx.lineTo(-6, 15);
+  ctx.moveTo(6, 1);
+  ctx.lineTo(6, 15);
+  ctx.stroke();
+
+  // rotating sparkle glints
+  const spin = prefersReducedMotion ? 0 : t * 0.6;
+  for (let i = 0; i < 4; i++) {
+    const a = spin + (i / 4) * Math.PI * 2;
+    const gx = Math.cos(a) * 8;
+    const gy = 8 + Math.sin(a) * 3;
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.beginPath();
+    ctx.arc(gx, gy, 1.1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+function drawMicStand(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // ground shadow
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(10, 55, 13, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#5C3A47";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+
+  // tripod legs
+  ctx.beginPath();
+  ctx.moveTo(10, 50);
+  ctx.lineTo(-4, 57);
+  ctx.moveTo(10, 50);
+  ctx.lineTo(10, 58);
+  ctx.moveTo(10, 50);
+  ctx.lineTo(24, 57);
+  ctx.stroke();
+
+  // pole
+  ctx.beginPath();
+  ctx.moveTo(10, 50);
+  ctx.lineTo(10, 6);
+  ctx.stroke();
+
+  // angled boom arm
+  ctx.beginPath();
+  ctx.moveTo(10, 8);
+  ctx.lineTo(23, 1);
+  ctx.stroke();
+
+  // mic head with a soft pop-filter mesh
+  ctx.fillStyle = "#3A2E4D";
+  ctx.beginPath();
+  ctx.ellipse(26, -1, 7, 5, -0.25, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,253,247,0.35)";
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath();
+    ctx.arc(23 + i * 2, -2 + (i % 2), 0.6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // cable trailing and curling on the floor
+  ctx.strokeStyle = "rgba(92,58,71,0.3)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(10, 50);
+  ctx.quadraticCurveTo(-6, 54, 0, 61);
+  ctx.quadraticCurveTo(8, 66, 4, 58);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawVinylCrate(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // shadow
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(22, 48, 24, 5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // records fanned out, peeking above the crate rim
+  const colors = ["#FF97B4", "#8FB3D9", "#F5C77E", "#C9A6E0"];
+  colors.forEach((c, i) => {
+    ctx.save();
+    ctx.translate(11 + i * 8, 22);
+    ctx.rotate(-0.24 + i * 0.16);
+    ctx.fillStyle = c;
+    ctx.fillRect(-9, -24, 18, 26);
+    ctx.fillStyle = "#3A2E4D";
+    ctx.beginPath();
+    ctx.arc(0, -24, 8, Math.PI, 0);
+    ctx.fill();
+    ctx.fillStyle = "#5C3A47";
+    ctx.beginPath();
+    ctx.arc(0, -24, 2, Math.PI, 0);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // crate
+  ctx.fillStyle = "#C99A55";
+  roundRectFill(ctx, 0, 22, 44, 26, 3);
+  ctx.strokeStyle = "rgba(92,58,71,0.3)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(2, 24, 40, 22);
+  ctx.beginPath();
+  ctx.moveTo(15, 24);
+  ctx.lineTo(15, 46);
+  ctx.moveTo(29, 24);
+  ctx.lineTo(29, 46);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawRecordFrame(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  // shadow + frame, matching the keepsake frames used elsewhere
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.fillRect(2, 2, 22, 26);
+  ctx.fillStyle = "#8A6470";
+  ctx.fillRect(0, 0, 22, 26);
+  ctx.fillStyle = "#FFFDF7";
+  ctx.fillRect(3, 3, 16, 20);
+  // a little vinyl record keepsake instead of a heart
+  ctx.fillStyle = "#3A2E4D";
+  ctx.beginPath();
+  ctx.arc(11, 13, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,253,247,0.45)";
+  ctx.lineWidth = 0.6;
+  ctx.beginPath();
+  ctx.arc(11, 13, 4.5, 0, Math.PI * 2);
+  ctx.arc(11, 13, 2.5, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = "#FF7DA0";
+  ctx.beginPath();
+  ctx.arc(11, 13, 1.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* --- extra studio dressing: acoustic foam, a neon sign, string lights,
+   monitor speakers and a stool, layered on to push the room from "has
+   instruments in it" toward "an actual little recording studio" --- */
+function drawFoamPanel(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  const cols = 3, rows = 2, cell = 8, gap = 1;
+  const palette = ["#8A6470", "#5C3A47", "#C9A6E0"];
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.fillRect(-1, -1, cols * (cell + gap) + 1, rows * (cell + gap) + 1);
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const px = c * (cell + gap);
+      const py = r * (cell + gap);
+      ctx.fillStyle = palette[(r + c) % palette.length];
+      ctx.fillRect(px, py, cell, cell);
+      // beveled pyramid highlight, the classic foam-tile look
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.beginPath();
+      ctx.moveTo(px + cell / 2, py + 1);
+      ctx.lineTo(px + cell - 1, py + cell / 2);
+      ctx.lineTo(px + cell / 2, py + cell - 1);
+      ctx.lineTo(px + 1, py + cell / 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
+function drawNeonSign(x, y, t) {
+  ctx.save();
+  ctx.translate(x, y);
+  const pulse = prefersReducedMotion ? 0.85 : 0.65 + 0.35 * Math.sin(t * 2.4);
+
+  // dark backing plate
+  ctx.fillStyle = "rgba(58,46,77,0.85)";
+  roundRectFill(ctx, -4, -4, 42, 32, 4);
+
+  // glow behind the tubes
+  const glow = ctx.createRadialGradient(17, 12, 2, 17, 12, 26);
+  glow.addColorStop(0, `rgba(255,151,180,${0.5 * pulse})`);
+  glow.addColorStop(1, "rgba(255,151,180,0)");
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(17, 12, 26, 0, Math.PI * 2);
+  ctx.fill();
+
+  // neon-tube double note glyph
+  ctx.strokeStyle = `rgba(255,151,180,${0.7 + 0.3 * pulse})`;
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.shadowColor = "rgba(255,151,180,0.9)";
+  ctx.shadowBlur = 6 * pulse;
+  ctx.beginPath();
+  ctx.moveTo(10, 22);
+  ctx.lineTo(10, 4);
+  ctx.lineTo(26, 2);
+  ctx.lineTo(26, 17);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(7, 22, 4, 3, -0.2, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(23, 19, 4, 3, -0.2, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+function drawFairyLights(x, y, w, t) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // sagging wire
+  ctx.strokeStyle = "rgba(92,58,71,0.3)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(w / 2, 9, w, 0);
+  ctx.stroke();
+
+  const colors = ["#FF97B4", "#F5C77E", "#8FB3D9", "#C9A6E0", "#FFD3E0"];
+  const bulbCount = Math.max(3, Math.round(w / 20));
+  for (let i = 0; i <= bulbCount; i++) {
+    const f = i / bulbCount;
+    const bx = f * w;
+    const by = Math.sin(f * Math.PI) * 9; // follows the wire's curve
+    const twinkle = prefersReducedMotion ? 0.75 : 0.5 + 0.5 * Math.sin(t * 3 + i * 1.7);
+    const c = colors[i % colors.length];
+
+    ctx.globalAlpha = twinkle;
+    const bulbGlow = ctx.createRadialGradient(bx, by + 2, 0.5, bx, by + 2, 6);
+    bulbGlow.addColorStop(0, c);
+    bulbGlow.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = bulbGlow;
+    ctx.beginPath();
+    ctx.arc(bx, by + 2, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = c;
+    ctx.beginPath();
+    ctx.arc(bx, by + 2, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+  ctx.restore();
+}
+
+function drawStudioMonitor(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  // shadow
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(11, 34, 13, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // cabinet
+  ctx.fillStyle = "#3A2E4D";
+  roundRectFill(ctx, 0, 0, 22, 32, 3);
+  // woofer
+  ctx.fillStyle = "#1E1730";
+  ctx.beginPath();
+  ctx.arc(11, 21, 7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.15)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(11, 21, 4.5, 0, Math.PI * 2);
+  ctx.stroke();
+  // tweeter
+  ctx.fillStyle = "#1E1730";
+  ctx.beginPath();
+  ctx.arc(11, 8, 3, 0, Math.PI * 2);
+  ctx.fill();
+  // brand accent strip
+  ctx.fillStyle = "rgba(255,151,180,0.7)";
+  ctx.fillRect(4, 29, 14, 1.4);
+  ctx.restore();
+}
+
+function drawStool(x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.fillStyle = "rgba(92,58,71,0.15)";
+  ctx.beginPath();
+  ctx.ellipse(11, 26, 12, 3.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // legs, splayed tripod-style
+  ctx.strokeStyle = "#8A6470";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(4, 8);
+  ctx.lineTo(-2, 24);
+  ctx.moveTo(11, 9);
+  ctx.lineTo(11, 26);
+  ctx.moveTo(18, 8);
+  ctx.lineTo(24, 24);
+  ctx.moveTo(0, 18);
+  ctx.lineTo(22, 18);
+  ctx.stroke();
+  // round cushioned seat
+  ctx.fillStyle = "rgba(92,58,71,0.2)";
+  ctx.beginPath();
+  ctx.ellipse(11, 7.5, 11, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#C99A55";
+  ctx.beginPath();
+  ctx.ellipse(11, 6, 11, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
 function drawTable(x, y, w, h) {
   ctx.save();
   ctx.fillStyle = "#C99A55";
@@ -2586,17 +3215,37 @@ function drawBalloon(x, y, color, t) {
   const bob = sway(t, x, 4);
   ctx.save();
   ctx.translate(x, y + bob);
+
+  // string with a little curled ribbon tail instead of a bare line
   ctx.strokeStyle = "rgba(92,58,71,0.4)";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, 14);
-  ctx.lineTo(0, 40);
+  ctx.lineTo(0, 34);
+  ctx.quadraticCurveTo(3, 38, 0, 41);
+  ctx.quadraticCurveTo(-3, 44, 0, 47);
   ctx.stroke();
-  ctx.fillStyle = color;
+
+  // balloon body with a richer gradient instead of a flat fill
+  const grad = ctx.createRadialGradient(-3, -4, 1, 0, 0, 14);
+  grad.addColorStop(0, "rgba(255,255,255,0.55)");
+  grad.addColorStop(0.35, color);
+  grad.addColorStop(1, shadeColor(color, -12));
+  ctx.fillStyle = grad;
   ctx.beginPath();
   ctx.ellipse(0, 0, 10, 13, 0, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "rgba(255,255,255,0.4)";
+
+  // little knot where the string ties on
+  ctx.fillStyle = shadeColor(color, -18);
+  ctx.beginPath();
+  ctx.moveTo(-2, 12);
+  ctx.lineTo(2, 12);
+  ctx.lineTo(0, 16);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "rgba(255,255,255,0.45)";
   ctx.beginPath();
   ctx.ellipse(-3, -4, 2.4, 3.4, -0.3, 0, Math.PI * 2);
   ctx.fill();
@@ -2606,17 +3255,128 @@ function drawBalloon(x, y, color, t) {
 function drawBunting(t) {
   ctx.save();
   const colors = ["#FF97B4", "#F5C77E", "#8FB3D9", "#C9A6E0"];
+  ctx.strokeStyle = "rgba(92,58,71,0.25)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(2, 2);
+  for (let i = 0; i < 10; i++) {
+    const midX = i * 44 + 18;
+    ctx.quadraticCurveTo(midX, 8, midX + 22, 2);
+  }
+  ctx.stroke();
+
   for (let i = 0; i < 10; i++) {
     const x = i * 44 + 10;
     const y = 4 + Math.sin(t * 1.2 + i) * 2;
-    ctx.fillStyle = colors[i % colors.length];
+    const c = colors[i % colors.length];
+
+    ctx.fillStyle = "rgba(92,58,71,0.14)";
+    ctx.beginPath();
+    ctx.moveTo(x + 1, y + 1);
+    ctx.lineTo(x + 17, y + 1);
+    ctx.lineTo(x + 9, y + 15);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = c;
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x + 16, y);
     ctx.lineTo(x + 8, y + 14);
     ctx.closePath();
     ctx.fill();
+
+    // scalloped trim along the bottom edge
+    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.beginPath();
+    ctx.arc(x + 8, y + 4, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // little dot detail near the point
+    ctx.fillStyle = shadeColor(c, -20);
+    ctx.beginPath();
+    ctx.arc(x + 8, y + 11, 1.2, 0, Math.PI * 2);
+    ctx.fill();
   }
+  ctx.restore();
+}
+
+/* --- gift-room-only extras: a dressed party table, a soft spotlight
+       pooling under the presents, and small wrapped boxes flanking
+       the main bouquet --- */
+function drawSpotlight(x, y, r) {
+  ctx.save();
+  const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+  grad.addColorStop(0, "rgba(255, 232, 214, 0.55)");
+  grad.addColorStop(0.6, "rgba(255, 211, 224, 0.22)");
+  grad.addColorStop(1, "rgba(255, 211, 224, 0)");
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.ellipse(x, y, r, r * 0.55, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawGiftTable(x, y, w, h) {
+  ctx.save();
+
+  // tablecloth skirt with a scalloped hem, instead of a plain wood table
+  ctx.fillStyle = "#FFFFFF";
+  roundRectFill(ctx, x, y, w, h, 6);
+
+  ctx.fillStyle = "#FFD3E0";
+  ctx.fillRect(x, y, w, h * 0.4);
+
+  ctx.fillStyle = "#FFD3E0";
+  const scallops = Math.round(w / 12);
+  for (let i = 0; i < scallops; i++) {
+    const cx = x + (i + 0.5) * (w / scallops);
+    ctx.beginPath();
+    ctx.arc(cx, y + h - 4, 6, 0, Math.PI);
+    ctx.fill();
+  }
+
+  ctx.strokeStyle = "rgba(92,58,71,0.2)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 4, y + 4, w - 8, h * 0.4 - 6);
+
+  // gold ribbon band across the front, tying the cloth together
+  ctx.fillStyle = "#E3B873";
+  ctx.fillRect(x, y + h * 0.4 - 2, w, 3);
+
+  ctx.restore();
+}
+
+function drawGiftBox(x, y, size, color) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  const ribbon = "#FFFFFF";
+
+  // box body with a soft top highlight
+  ctx.fillStyle = color;
+  roundRectFill(ctx, -size / 2, -size / 2, size, size, 3);
+  ctx.fillStyle = "rgba(255,255,255,0.25)";
+  ctx.fillRect(-size / 2, -size / 2, size, size * 0.3);
+
+  // ribbon cross
+  ctx.fillStyle = ribbon;
+  ctx.fillRect(-size / 2, -1.5, size, 3);
+  ctx.fillRect(-1.5, -size / 2, 3, size);
+
+  // little bow on top
+  ctx.fillStyle = ribbon;
+  ctx.beginPath();
+  ctx.moveTo(0, -size / 2);
+  ctx.quadraticCurveTo(-7, -size / 2 - 7, -1, -size / 2 - 2);
+  ctx.quadraticCurveTo(-3, -size / 2 + 2, 0, -size / 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(0, -size / 2);
+  ctx.quadraticCurveTo(7, -size / 2 - 7, 1, -size / 2 - 2);
+  ctx.quadraticCurveTo(3, -size / 2 + 2, 0, -size / 2);
+  ctx.fill();
+
   ctx.restore();
 }
 
@@ -2675,14 +3435,28 @@ function drawDecorItem(item, t) {
     case "chair": drawChair(item.x, item.y); break;
     case "writingDesk": drawWritingDesk(item.x, item.y, item.w, item.h, t); break;
     case "pottedPlant": drawPottedPlant(item.x, item.y); break;
-    case "guitar": drawGuitar(item.x, item.y); break;
+    case "guitar": drawAcousticGuitar(item.x, item.y); break;
+    case "electricGuitar": drawElectricGuitar(item.x, item.y); break;
     case "piano": drawPiano(item.x, item.y); break;
     case "amp": drawAmp(item.x, item.y); break;
     case "notesWallpaper": drawNotesWallpaper(t); break;
     case "table": drawTable(item.x, item.y, item.w, item.h); break;
+    case "radioBox": drawRadioBox(item.x, item.y, t); break;
+    case "discoBall": drawDiscoBall(item.x, item.y, t); break;
+    case "micStand": drawMicStand(item.x, item.y); break;
+    case "vinylCrate": drawVinylCrate(item.x, item.y); break;
+    case "recordFrame": drawRecordFrame(item.x, item.y); break;
+    case "foamPanel": drawFoamPanel(item.x, item.y); break;
+    case "neonSign": drawNeonSign(item.x, item.y, t); break;
+    case "fairyLights": drawFairyLights(item.x, item.y, item.w, t); break;
+    case "studioMonitor": drawStudioMonitor(item.x, item.y); break;
+    case "stool": drawStool(item.x, item.y); break;
     case "balloon": drawBalloon(item.x, item.y, item.color, t); break;
     case "bunting": drawBunting(t); break;
     case "bouquet": drawBouquet(item.x, item.y, t); break;
+    case "spotlight": drawSpotlight(item.x, item.y, item.r); break;
+    case "giftTable": drawGiftTable(item.x, item.y, item.w, item.h); break;
+    case "giftBox": drawGiftBox(item.x, item.y, item.size, item.color); break;
   }
 }
 
@@ -2952,9 +3726,10 @@ let confettiRunning = false;
 function spawnConfetti() {
   confettiCanvas.width = window.innerWidth;
   confettiCanvas.height = window.innerHeight;
-  const colors = ["#FF97B4", "#FFD3E0", "#E3B873", "#FFFFFF", "#FF7DA0"];
+  const colors = ["#FF97B4", "#FFD3E0", "#E3B873", "#FFFFFF", "#FF7DA0", "#C9A6E0", "#8FB3D9"];
+  const shapes = ["square", "ribbon", "dot"];
   confettiParticles = [];
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 100; i++) {
     confettiParticles.push({
       x: Math.random() * confettiCanvas.width,
       y: -20 - Math.random() * confettiCanvas.height * 0.5,
@@ -2962,6 +3737,7 @@ function spawnConfetti() {
       vx: (Math.random() - 0.5) * 40,
       size: 4 + Math.random() * 5,
       color: colors[Math.floor(Math.random() * colors.length)],
+      shape: shapes[Math.floor(Math.random() * shapes.length)],
       rotation: Math.random() * Math.PI,
       spin: (Math.random() - 0.5) * 4,
     });
@@ -2985,7 +3761,17 @@ function confettiLoop(now) {
     confettiCtx.translate(p.x, p.y);
     confettiCtx.rotate(p.rotation);
     confettiCtx.fillStyle = p.color;
-    confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+
+    if (p.shape === "ribbon") {
+      confettiCtx.fillRect(-p.size * 0.25, -p.size * 0.9, p.size * 0.5, p.size * 1.8);
+    } else if (p.shape === "dot") {
+      confettiCtx.beginPath();
+      confettiCtx.arc(0, 0, p.size / 2.4, 0, Math.PI * 2);
+      confettiCtx.fill();
+    } else {
+      confettiCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+    }
+
     confettiCtx.restore();
   });
 
