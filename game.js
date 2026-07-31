@@ -227,38 +227,75 @@ function showOverlayScreen(id) {
    there yet, playback just fails quietly -- nothing breaks.
 ========================================================================= */
 const AudioManager = {
-  bgm: new Audio(),
-  currentBgmRoom: null,
+  bgm: new Audio(),       // the single ambient track, playing everywhere
+  altTrack: new Audio(),  // one-off tracks that override it (e.g. the finale)
+  ducked: false,          // true while in the Music Room
+  fadeInterval: null,
 
   init() {
     this.bgm.loop = true;
-    this.applyVolume();
+    this.bgm.src = "assets/sounds/bgm-main.mp3";
   },
 
+  // Makes sure the single ambient track is actually running. Browsers block
+  // autoplay before a user gesture, so this quietly no-ops until the first
+  // room change after Start/Continue is clicked.
+  ensurePlaying() {
+    if (this.bgm.paused) {
+      this.bgm.volume = 0;
+      this.bgm.play().catch(() => {
+        /* still no user gesture yet -- fine, next room change retries */
+      });
+    }
+  },
+
+  // Called on every room change. The track keeps playing everywhere; it
+  // only fades down while she's in the Music Room (which has its own
+  // radio/song list) and fades back up in every other room.
+  setRoom(roomId) {
+    this.ensurePlaying();
+    this.ducked = roomId === "music";
+    const target = state.muted ? 0 : this.ducked ? 0 : state.volume;
+    this.fadeBgmTo(target);
+  },
+
+  fadeBgmTo(target, duration = 900) {
+    clearInterval(this.fadeInterval);
+    const start = this.bgm.volume;
+    const t0 = performance.now();
+    this.fadeInterval = setInterval(() => {
+      const p = Math.min((performance.now() - t0) / duration, 1);
+      this.bgm.volume = start + (target - start) * p;
+      if (p >= 1) clearInterval(this.fadeInterval);
+    }, 40);
+  },
+
+  // Applies the current volume/mute state immediately, no fade -- used
+  // right after loading a save, before playback has started.
   applyVolume() {
-    this.bgm.volume = state.muted ? 0 : state.volume;
+    const target = state.muted ? 0 : this.ducked ? 0 : state.volume;
+    this.bgm.volume = target;
+    if (!this.altTrack.paused) this.altTrack.volume = state.muted ? 0 : state.volume;
   },
 
-  playRoomMusic(roomId) {
-    if (this.currentBgmRoom === roomId) return;
-    this.currentBgmRoom = roomId;
-    this.bgm.pause();
-    this.bgm.src = `assets/sounds/bgm-${roomId}.mp3`;
-    this.applyVolume();
-    this.bgm.play().catch(() => {
-      /* file not added yet -- fine, silence is okay */
-    });
-  },
-
-  // Plays a one-off named track (e.g. the finale's piano cover) outside the
-  // normal per-room rotation, and forgets the current room so stepping
-  // back into a room afterward reliably restarts its own music.
+  // Plays a one-off track on its own channel (e.g. the finale's piano
+  // cover), ducking the main ambient track out from under it.
   playTrack(name) {
-    this.currentBgmRoom = null;
+    clearInterval(this.fadeInterval);
+    this.bgm.volume = 0;
+    this.altTrack.pause();
+    this.altTrack.currentTime = 0;
+    this.altTrack.loop = true;
+    this.altTrack.src = `assets/sounds/bgm-${name}.mp3`;
+    this.altTrack.volume = state.muted ? 0 : state.volume;
+    this.altTrack.play().catch(() => {});
+  },
+
+  // Stops everything -- used when returning to the title screen.
+  stopAll() {
+    clearInterval(this.fadeInterval);
     this.bgm.pause();
-    this.bgm.src = `assets/sounds/bgm-${name}.mp3`;
-    this.applyVolume();
-    this.bgm.play().catch(() => {});
+    this.altTrack.pause();
   },
 
   sfx(name) {
@@ -851,7 +888,7 @@ function showNextReason() {
     }
   }
   const reason = reasonBag.pop();
-  AudioManager.sfx("interact");
+  AudioManager.sfx("flower-reveal");
   dialogue.show("", [reason]);
 }
 
@@ -891,7 +928,6 @@ let letterTyper = null; // active typewriter handle, so replays cancel any run s
 
 function openLetterModal() {
   openModal("modal-letter");
-  AudioManager.playRoomMusic("letter"); // soft music cue, per the brief
 
   if (letterTyper) {
     letterTyper.cancel();
@@ -919,6 +955,7 @@ function openLetterModal() {
 btnOpenLetter.addEventListener("click", () => {
   if (envelopeEl.classList.contains("open")) return;
   envelopeEl.classList.add("open");
+  AudioManager.sfx("letter-open");
   btnOpenLetter.disabled = true;
   btnOpenLetter.style.opacity = "0.5";
 
@@ -1094,7 +1131,7 @@ function goToRoom(roomId, spawn) {
   state.player.vx = 0;
   state.player.vy = 0;
   hudRoomEl.textContent = rooms[roomId].label;
-  AudioManager.playRoomMusic(roomId);
+  AudioManager.setRoom(roomId);
   showRoomIntro(roomId);
 
   if (roomId !== "hub" && state.visited[roomId] !== undefined) {
@@ -3782,7 +3819,7 @@ function triggerFinale() {
   inputState.frozen = true;
   state.visited.giftArea = true;
   saveGame();
-  AudioManager.sfx("celebrate");
+  AudioManager.sfx("gift-open");
   AudioManager.playTrack("birthday"); // a cute piano Happy Birthday cover, see assets/sounds/README.md
 
   finaleOverlay.classList.remove("hidden");
@@ -3793,6 +3830,11 @@ function triggerFinale() {
     requestAnimationFrame(confettiLoop);
   }
 
+  // Tracks which message is on screen so the close button knows what to do
+  // next -- checking the button's own label against a moving target text
+  // was the bug that made "Close" silently do nothing.
+  let finaleStage = "message";
+
   runTypewriter(finaleTextEl, fillTemplate(CONFIG.finaleMessage), {
     speed: 26,
     onDone: () => {
@@ -3801,11 +3843,12 @@ function triggerFinale() {
   });
 
   btnFinaleClose.onclick = () => {
-    if (finaleTextEl.textContent !== fillTemplate(CONFIG.finaleMessage)) {
+    if (finaleTextEl.classList.contains("typing")) {
       // still typing -- let it finish rather than jumping ahead
       return;
     }
-    if (btnFinaleClose.textContent.includes("One more thing")) {
+    if (finaleStage === "message") {
+      finaleStage = "secret";
       runTypewriter(finaleTextEl, CONFIG.secretMessage, {
         speed: 26,
         onDone: () => {
@@ -3816,8 +3859,7 @@ function triggerFinale() {
       confettiRunning = false;
       finaleOverlay.classList.add("hidden");
       inputState.frozen = false;
-      AudioManager.currentBgmRoom = null;
-      AudioManager.bgm.pause();
+      AudioManager.stopAll();
       showOverlayScreen("title");
       btnContinue.classList.remove("hidden");
     }
@@ -3876,7 +3918,7 @@ function enterGameWorld({ skipWelcome = false } = {}) {
   function begin() {
     showOverlayScreen("game");
     hudRoomEl.textContent = rooms[state.room].label;
-    AudioManager.playRoomMusic(state.room);
+    AudioManager.setRoom(state.room);
     lastFrame = performance.now();
     requestAnimationFrame(loop);
   }
