@@ -162,7 +162,7 @@ const state = {
   player: { x: 200, y: 190, vx: 0, vy: 0, facing: "down", moving: false },
   visited: { garden: false, letter: false, music: false, giftArea: false },
   muted: false,
-  volume: 0.6,
+  volume: 0.2,
   letterOpenedOnce: false,
 };
 
@@ -3736,6 +3736,351 @@ function startBuddyPreviewLoop() {
 }
 
 /* =========================================================================
+   TITLE SCREEN: PIXEL WORLD BACKGROUND
+   A little scenic backdrop behind the title card -- soft mountains, a
+   cherry-blossom hillside, drifting clouds, a couple of birds, and petals
+   on the breeze. Drawn at a low internal resolution (same trick as the
+   in-game canvas) and scaled up with pixelated rendering so it reads as
+   a cozy pixel-art world instead of a flat gradient.
+========================================================================= */
+const titleBgCanvas = document.getElementById("title-bg-canvas");
+const titleBgCtx = titleBgCanvas ? titleBgCanvas.getContext("2d") : null;
+
+const titleBg = {
+  w: 0,
+  h: 0,
+  horizon: 0,
+  clouds: [],
+  birds: [],
+  trees: [],
+  petals: [],
+  ready: false,
+};
+
+const TITLE_BG_TARGET_COLS = 150; // low-res "pixel" column count -- keeps the blockiness consistent across screen sizes
+
+function resizeTitleBg() {
+  if (!titleBgCanvas) return;
+  const cssW = window.innerWidth;
+  const cssH = window.innerHeight;
+  const scale = Math.max(1, cssW / TITLE_BG_TARGET_COLS);
+  const w = Math.max(60, Math.round(cssW / scale));
+  const h = Math.max(60, Math.round(cssH / scale));
+  titleBgCanvas.width = w;
+  titleBgCanvas.height = h;
+  titleBg.w = w;
+  titleBg.h = h;
+  titleBg.horizon = Math.round(h * 0.6);
+  buildTitleBgScene();
+}
+
+function buildTitleBgScene() {
+  const { w, horizon } = titleBg;
+
+  titleBg.clouds = Array.from({ length: 4 }, (_, i) => ({
+    baseX: (i / 4) * (w + 60) - 30,
+    y: horizon * 0.14 + (i % 3) * (horizon * 0.09),
+    speed: 2.2 + (i % 3) * 1.3,
+    scale: 0.7 + ((i * 37) % 5) / 10,
+  }));
+
+  titleBg.birds = Array.from({ length: 3 }, (_, i) => ({
+    baseX: -10 - i * (w / 3),
+    y: horizon * 0.22 + i * (horizon * 0.08),
+    speed: 20 + i * 7,
+    phase: i * 1.7,
+  }));
+
+  const treeCount = Math.max(3, Math.min(6, Math.round(w / 55)));
+  titleBg.trees = Array.from({ length: treeCount }, (_, i) => {
+    const spread = w / treeCount;
+    return {
+      x: spread * (i + 0.5) + (((i * 53) % 10) - 5),
+      scale: 0.85 + ((i * 29) % 10) / 22,
+      seed: i * 17,
+    };
+  });
+
+  titleBg.petals = Array.from({ length: 16 }, (_, i) => ({
+    x: (i * 71) % Math.max(1, w),
+    y: (i * 43) % Math.max(1, titleBg.h),
+    speed: 4 + ((i * 13) % 10),
+    drift: (i * 0.9) % (Math.PI * 2),
+  }));
+
+  titleBg.ready = true;
+}
+
+function drawTitleSky(tctx, w, horizon) {
+  const bands = ["#FFD9E6", "#FFE3EC", "#FFE9EF", "#FFF0F1", "#FFF5F2", "#FFF8F4"];
+  const bandH = horizon / bands.length;
+  bands.forEach((color, i) => {
+    tctx.fillStyle = color;
+    tctx.fillRect(0, Math.floor(i * bandH), w, Math.ceil(bandH) + 1);
+  });
+  // faint warm haze low on the horizon, like light scattering through distant air
+  const haze = tctx.createLinearGradient(0, horizon * 0.75, 0, horizon + 4);
+  haze.addColorStop(0, "rgba(255,222,196,0)");
+  haze.addColorStop(1, "rgba(255,222,196,0.55)");
+  tctx.fillStyle = haze;
+  tctx.fillRect(0, 0, w, horizon + 4);
+}
+
+function drawTitleSun(tctx, cx, cy, r) {
+  const glow = tctx.createRadialGradient(cx, cy, 0, cx, cy, r * 3);
+  glow.addColorStop(0, "rgba(255,236,196,0.75)");
+  glow.addColorStop(0.4, "rgba(255,224,180,0.3)");
+  glow.addColorStop(1, "rgba(255,224,180,0)");
+  tctx.fillStyle = glow;
+  tctx.beginPath();
+  tctx.arc(cx, cy, r * 3, 0, Math.PI * 2);
+  tctx.fill();
+
+  // soft light rays for a bit more depth
+  tctx.save();
+  tctx.globalAlpha = 0.18;
+  tctx.strokeStyle = "#FFE9B8";
+  tctx.lineWidth = Math.max(1, r * 0.18);
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    tctx.beginPath();
+    tctx.moveTo(cx + Math.cos(a) * r * 1.3, cy + Math.sin(a) * r * 1.3);
+    tctx.lineTo(cx + Math.cos(a) * r * 2.6, cy + Math.sin(a) * r * 2.6);
+    tctx.stroke();
+  }
+  tctx.restore();
+
+  const body = tctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, 0, cx, cy, r);
+  body.addColorStop(0, "#FFF6E0");
+  body.addColorStop(1, "#FFD988");
+  tctx.fillStyle = body;
+  tctx.beginPath();
+  tctx.arc(cx, cy, r, 0, Math.PI * 2);
+  tctx.fill();
+}
+
+function drawTitleCloud(tctx, x, y, scale) {
+  // shaded underside gives the puffs a little volume instead of flat white
+  tctx.fillStyle = "rgba(255,255,255,0.92)";
+  tctx.beginPath();
+  tctx.ellipse(x, y, 9 * scale, 4 * scale, 0, 0, Math.PI * 2);
+  tctx.ellipse(x - 7 * scale, y + 1, 6 * scale, 3 * scale, 0, 0, Math.PI * 2);
+  tctx.ellipse(x + 7 * scale, y + 1, 6 * scale, 3 * scale, 0, 0, Math.PI * 2);
+  tctx.ellipse(x, y - 3 * scale, 6 * scale, 3.5 * scale, 0, 0, Math.PI * 2);
+  tctx.fill();
+
+  tctx.fillStyle = "rgba(228,205,214,0.55)";
+  tctx.beginPath();
+  tctx.ellipse(x - 2 * scale, y + 2.5 * scale, 9 * scale, 2.4 * scale, 0, 0, Math.PI * 2);
+  tctx.fill();
+}
+
+function drawTitleBird(tctx, x, y, t) {
+  const wing = Math.sin(t * 8) * 2.4;
+  tctx.strokeStyle = "#6E4E5B";
+  tctx.lineWidth = 1;
+  tctx.lineCap = "round";
+  tctx.beginPath();
+  tctx.moveTo(x - 3, y - wing);
+  tctx.lineTo(x, y);
+  tctx.lineTo(x + 3, y - wing);
+  tctx.stroke();
+  // tiny cast shadow-ish body dot so it doesn't read as a flat line
+  tctx.fillStyle = "#6E4E5B";
+  tctx.fillRect(Math.round(x) - 0.5, Math.round(y) - 0.5, 1, 1);
+}
+
+function drawTitleMountains(tctx, w, horizon, amplitude, riseY, freq, seed, color) {
+  // blocky/terraced silhouette -- stepped columns instead of a smooth curve,
+  // so it reads as chunky "voxel" terrain -- with rocky ridge shading added
+  // on the downhill face of each step for a sense of real light and form
+  const step = Math.max(2, Math.round(w / 46));
+  const cols = Math.ceil(w / step) + 1;
+  const shade = shadeColor(color, -16);
+  const highlight = shadeColor(color, 10);
+  const tops = [];
+
+  tctx.fillStyle = color;
+  for (let i = 0; i < cols; i++) {
+    const x = i * step;
+    const raw = horizon - riseY - amplitude * (0.35 + 0.65 * Math.abs(Math.sin(i * freq * 0.35 + seed)));
+    const y = Math.round(raw / step) * step;
+    tops.push(y);
+    tctx.fillRect(x, y, step + 1, horizon + 4 - y);
+  }
+
+  // shaded face wherever the ridge steps downward (away from implied light on the left)
+  tctx.fillStyle = shade;
+  for (let i = 1; i < cols; i++) {
+    if (tops[i] > tops[i - 1]) {
+      tctx.fillRect(i * step, tops[i - 1], step + 1, tops[i] - tops[i - 1] + step);
+    }
+  }
+
+  // thin lit ridge line along the very top of each peak
+  tctx.fillStyle = highlight;
+  for (let i = 0; i < cols; i++) {
+    tctx.fillRect(i * step, tops[i], step + 1, Math.max(1, Math.round(step / 3)));
+  }
+}
+
+function drawTitleHill(tctx, w, h, horizon) {
+  const step = Math.max(2, Math.round(w / 60));
+  const backColor = "#A9DB93";
+  const frontColor = "#8FCB7C";
+
+  // back grass band, with a soft shaded strip just under its ridge for depth
+  tctx.fillStyle = backColor;
+  const backTops = [];
+  for (let x = 0, i = 0; x < w; x += step, i++) {
+    const raw = horizon - 6 + 10 * Math.sin(x * 0.045) - 6 * Math.sin(x * 0.013 + 1.4);
+    const y = Math.round(raw / step) * step;
+    backTops.push(y);
+    tctx.fillRect(x, y, step + 1, h - y);
+  }
+  tctx.fillStyle = shadeColor(backColor, -12);
+  backTops.forEach((y, i) => tctx.fillRect(i * step, y, step + 1, step));
+
+  // front grass band
+  tctx.fillStyle = frontColor;
+  const frontTops = [];
+  for (let x = 0, i = 0; x < w; x += step, i++) {
+    const raw = horizon + 14 + 8 * Math.sin(x * 0.03 + 2.1) - 5 * Math.sin(x * 0.017 + 0.6);
+    const y = Math.round(raw / step) * step;
+    frontTops.push(y);
+    tctx.fillRect(x, y, step + 1, h - y);
+  }
+
+  // dithered grass texture -- darker speckles scattered across the front lawn
+  tctx.fillStyle = shadeColor(frontColor, -18);
+  frontTops.forEach((y, i) => {
+    if ((i * 7) % 5 === 0) tctx.fillRect(i * step + step * 0.3, y + step * 1.3, step * 0.4, step * 0.4);
+    if ((i * 11) % 8 === 0) tctx.fillRect(i * step + step * 0.6, y + step * 3.1, step * 0.4, step * 0.4);
+  });
+
+  // little blade tufts poking up along the ridge, for a hand-planted feel
+  tctx.fillStyle = shadeColor(frontColor, -6);
+  frontTops.forEach((y, i) => {
+    if ((i * 13) % 6 === 0) tctx.fillRect(i * step + step * 0.4, y - step * 0.6, step * 0.3, step * 0.7);
+  });
+}
+
+function drawTitleCherryTree(tctx, x, y, scale, t, seed) {
+  // blocky "voxel" cherry tree -- stacked squares like a Minecraft sapling,
+  // with a shaded trunk, layered/shaded canopy blocks, and a soft ground
+  // shadow so it reads with real light and weight instead of flat color
+  const s = prefersReducedMotion ? 0 : sway(t, x + seed, 2.4);
+  const px = Math.max(1, Math.round(scale)); // one "block" size
+
+  // soft contact shadow on the ground beneath the tree
+  tctx.save();
+  tctx.fillStyle = "rgba(92,58,71,0.16)";
+  tctx.beginPath();
+  tctx.ellipse(x, y + px * 0.5, px * 5, px * 1.4, 0, 0, Math.PI * 2);
+  tctx.fill();
+  tctx.restore();
+
+  tctx.save();
+  tctx.translate(x, y);
+
+  // trunk with a darker shaded side for a bit of roundness
+  tctx.fillStyle = "#8A6470";
+  tctx.fillRect(-px, 0, px * 2, px * 7);
+  tctx.fillStyle = "#6E4E5B";
+  tctx.fillRect(px * 0.3, 0, px * 0.7, px * 7);
+  // a short branch stub
+  tctx.fillStyle = "#8A6470";
+  tctx.fillRect(-px * 2.4, px * 2.2, px * 1.6, px * 0.8);
+
+  tctx.translate(0, -px);
+  tctx.rotate((s * Math.PI) / 180);
+
+  const canopy = [
+    [-3, -13, 6], [3, -13, 6],
+    [-6, -10, 5], [0, -10, 8], [6, -10, 5],
+    [-4, -6, 6], [2, -6, 7], [8, -6, 4],
+    [-8, -6, 3],
+  ];
+  // base canopy color, then a darker shaded pass on the lower-right of each
+  // clump and a lighter highlight on the upper-left, for simple directional light
+  tctx.fillStyle = "#FFC4D6";
+  canopy.forEach(([cx, cy, w]) => {
+    tctx.fillRect(cx * px * 0.55, cy * px * 0.7, w * px * 0.55, w * px * 0.55);
+  });
+  tctx.fillStyle = "rgba(214,138,164,0.55)";
+  canopy.forEach(([cx, cy, w]) => {
+    const bx = cx * px * 0.55, by = cy * px * 0.7, bw = w * px * 0.55;
+    tctx.fillRect(bx + bw * 0.45, by + bw * 0.45, bw * 0.55, bw * 0.55);
+  });
+  tctx.fillStyle = "rgba(255,235,240,0.7)";
+  canopy.forEach(([cx, cy, w]) => {
+    const bx = cx * px * 0.55, by = cy * px * 0.7, bw = w * px * 0.55;
+    tctx.fillRect(bx, by, bw * 0.4, bw * 0.35);
+  });
+
+  tctx.fillStyle = "#FFE1EC";
+  tctx.fillRect(-4 * px * 0.55, -12 * px * 0.7, 3 * px * 0.55, 3 * px * 0.55);
+  tctx.fillRect(5 * px * 0.55, -8 * px * 0.7, 3 * px * 0.55, 3 * px * 0.55);
+
+  tctx.restore();
+}
+
+function renderTitleBg(t) {
+  if (!titleBgCtx || !titleBg.ready) return;
+  const { w, h, horizon } = titleBg;
+  titleBgCtx.clearRect(0, 0, w, h);
+
+  drawTitleSky(titleBgCtx, w, horizon);
+  drawTitleSun(titleBgCtx, w * 0.8, horizon * 0.22, Math.max(5, w * 0.045));
+
+  titleBg.clouds.forEach((c) => {
+    const cx = ((c.baseX + t * c.speed) % (w + 60)) - 30;
+    drawTitleCloud(titleBgCtx, cx, c.y, c.scale);
+  });
+
+  titleBg.birds.forEach((b) => {
+    const bx = ((b.baseX + t * b.speed) % (w + 20)) - 10;
+    drawTitleBird(titleBgCtx, bx, b.y, t + b.phase);
+  });
+
+  drawTitleMountains(titleBgCtx, w, horizon, horizon * 0.4, horizon * 0.36, 1.7, 4, "#D9C8E3");
+  drawTitleMountains(titleBgCtx, w, horizon, horizon * 0.32, horizon * 0.14, 1.3, 11, "#BFA8D2");
+
+  drawTitleHill(titleBgCtx, w, h, horizon);
+
+  titleBg.trees.forEach((tr) => {
+    drawTitleCherryTree(titleBgCtx, tr.x, horizon + 14, tr.scale, t, tr.seed);
+  });
+
+  titleBgCtx.fillStyle = "rgba(255,196,214,0.8)";
+  titleBg.petals.forEach((p) => {
+    const py = (p.y + t * p.speed) % h;
+    const px = p.x + Math.sin(t * 0.6 + p.drift) * 5;
+    titleBgCtx.fillRect(Math.round(px), Math.round(py), 2, 2);
+  });
+}
+
+let titleBgLoopRunning = false;
+function startTitleBgLoop() {
+  if (titleBgLoopRunning || !titleBgCtx) return;
+  titleBgLoopRunning = true;
+  function step(now) {
+    renderTitleBg(now / 1000);
+    if (screens.title.classList.contains("active")) {
+      requestAnimationFrame(step);
+    } else {
+      titleBgLoopRunning = false;
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+if (titleBgCanvas) {
+  resizeTitleBg();
+  window.addEventListener("resize", resizeTitleBg);
+}
+
+/* =========================================================================
    MAIN LOOP
 ========================================================================= */
 let lastFrame = performance.now();
@@ -3969,4 +4314,5 @@ canvas.addEventListener("click", () => {
     btnContinue.classList.remove("hidden");
   }
   showOverlayScreen("title");
+  startTitleBgLoop();
 })();
