@@ -77,7 +77,7 @@ Anji`,
   roomIntros: {
     garden: "Some flowers hide little messages. Find the reasons why you are special. 🌸",
     letter: "A special letter is waiting somewhere in this room. Maybe it has something I want to tell you. 💌",
-    music: "Songs I dedicated for you are waiting here. Hurry and find them. 🎧",
+    music: "A song I dedicated for you is waiting here. Hurry and find it hehe. 🤍 (It’s a little rushed harana, but I hope you like it.)",
     giftArea: "One last surprise, made just for you. 🎁",
   },
 
