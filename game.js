@@ -16,23 +16,29 @@ const CONFIG = {
 
 Happy birthday, Eli. 🤍
 
-I hope you have a really wonderful day today. I hope you get to rest, smile, and feel celebrated because you deserve it.
+I hope you have a really wonderful day today. I hope you get to rest, smile, and feel celebrated because you truly deserve it. I hope this day reminds you how special and appreciated you are.
 
-It's kind of funny because it's only been a month since we started talking, but I'm really glad that I got the chance to meet you. I didn't expect to find someone who was so easy to talk to and someone I genuinely enjoy getting to know.
+It's kind of crazy to think that it's only been a little over a month since we started talking. It still amazes me how someone I met so recently could become someone I genuinely look forward to talking to. I didn't expect to find someone who was so easy to talk to, someone I could share random thoughts with, laugh with, and slowly become comfortable around.
 
-I love hearing about your little stories, your thoughts, your dreams, and the things that make you happy. I admire how passionate and hardworking you are, and how much you care about the people around you. You have such a warm heart, and I hope you know that it's something really special.
+I love hearing about your little stories, your thoughts, your dreams, and even the small things that happen in your day. I love learning more about you — the things you love, the things that make you happy, and the little details that make you who you are. I admire how passionate and hardworking you are, how much you care about the people around you, and how you always try your best even when things get tiring.
 
-I know I might not always be the most showy person when it comes to expressing how I feel. Sometimes I struggle with saying things out loud, but I hope you know that I appreciate you more than I probably show. The truth is, I always miss you. I miss talking to you, hearing about your day, and sharing little moments with you. Even the simplest messages from you can make me smile.
+And Eli, I hope you know how beautiful you are. I know I usually just say "you're so pretty," but honestly, sometimes I feel like those words aren't enough. You're absolutely beautiful — not just because of how you look, but because of who you are as a person. The way you care for others, the way you think, your passion for the things you love, and the warmth you bring to people around you are things I genuinely admire.
 
-Thank you for the conversations, the random stories, the laughs, the late-night talks, and the little moments that made this past month special. Thank you for letting me get to know you.
+The truth is, I'm slowly becoming head over heels for you. It's funny because it hasn't been that long, but somehow you became someone who means a lot to me. Someone I'm excited to talk to, someone whose stories I want to hear, and someone I'm grateful I got the chance to meet.
 
-For this new chapter of your life, I hope you continue to grow, achieve the things you dream of, and find happiness in the little moments too. I hope you remember to take care of yourself the same way you take care of everyone else.
+I know I'm not always the most expressive person when it comes to showing how I feel. Sometimes I struggle with putting my thoughts into words, but I hope you know that I appreciate you more than I probably show. Maybe you've noticed that I don't really call you by endearments yet, and it's not because I don't want to. Honestly, I do. I just feel like those words hold a lot of meaning, and I want them to come at a time when they feel completely right. But I hope you know that even without saying those words, I still care about you deeply and I'm grateful for every moment I get to share with you.
 
-I'm really happy that I met you, Eli. I'm excited to keep knowing you more and to see all the amazing things you're going to do.
+I really enjoy the time we spend together — our conversations, our random stories, our laughs, our late-night talks, watching movies together, and even the simple moments where we just get to share parts of our lives with each other. Those little moments became some of my favorite memories from this past month. I know you have a lot going on, and I really appreciate every moment you choose to spend with me. Even the smallest things from you mean a lot.
 
-Happy birthday again. I hope your day is as lovely as you are. 🤍
+Thank you for the conversations, the random stories, the laughs, the late-night talks, the movie nights, and all the little moments that made this past month special. Thank you for letting me get to know you and for allowing me to be a small part of your life.
 
-Oh, and one more thing. This is the little project I was secretly working on whenever we weren't talking and I had some free time. I'd work on it little by little whenever I could, and now I'm really happy I finally get to share it with you. I hope it makes you smile. 🤍
+For this new chapter of your life, I hope you continue to grow, achieve the things you dream of, and find happiness even in the smallest moments. I hope you remember to take care of yourself the same way you take care of everyone else. You deserve the same kindness and love that you always give to other people.
+
+I'm really happy that I met you, Eli. I'm excited to keep knowing you more, to hear more of your stories, and to see all the amazing things you're going to do.
+
+Happy birthday again. I hope your day is as lovely and wonderful as you are. 🤍
+
+Oh, and one more thing. This is the little project I was secretly working on whenever we weren't talking and whenever I had some free time. I worked on it little by little because I wanted to make something that was personally made for you. I know it's simple, but every part of it has a little bit of my time, effort, and appreciation for you. I hope it makes you smile, even just a little. 🤍
 
 
 With love,
@@ -42,14 +48,15 @@ Anji`,
   // shuffled order that never repeats one twice before all the others have
   // had a turn.
   reasons: [
-    "Because I love how you can turn a simple conversation into something I don't want to end.",
-    "Because your little quirks make you even more adorable.",
-    "Because I admire the way you care so deeply about the people you love.",
-    "Because you have this quiet strength that I hope you see in yourself too.",
-    "Because I love the way you share pieces of yourself with me.",
-    "Because you make me look forward to checking my messages.",
-    "Because you make me want to slow down and enjoy getting to know someone.",
-    "Because I love seeing the passion you have for your dreams.",
+    "Because you can turn even the simplest conversation into something I never want to end.",
+    "Because your little quirks and the small things you do make you even more adorable.",
+    "Because I admire how deeply you care about the people you love and how much you always try to be there for them.",
+    "Because you have this quiet strength that I hope you see in yourself the way I see it in you.",
+    "Because I love the way you slowly let me see different parts of yourself.",
+    "Because your messages can instantly make my day better.",
+    "Because talking to you feels easy, comfortable, and something I genuinely look forward to.",
+    "Because I love seeing how passionate you are about your dreams and the things you care about.",
+    "Because I appreciate the little moments we share, whether it's talking, laughing, or just spending time together.",
     "Because you make me feel lucky that our paths crossed.",
     "Because you're Eli -- and there's no one else quite like you.",
   ],
@@ -58,16 +65,10 @@ Anji`,
   // placeholder instead of a dead link.
   songs: [
     {
-      title: "Song Title Here",
+      title: "Balisong",
       artist: "Anji (cover)",
-      note: "A short line about why this one's for her.",
-      url: "#",
-    },
-    {
-      title: "Another Song Title",
-      artist: "Anji (cover)",
-      note: "A short line about why this one's for her.",
-      url: "#",
+      note: "because it reminds me of you",
+      url: "assets/sounds/balisong.mp3",
     },
   ],
 
@@ -216,9 +217,26 @@ function clearSave() {
 /* =========================================================================
    SCREEN SWITCHING (title / name / buddy / welcome / game)
 ========================================================================= */
+// Menu music spans the title screen and the setup flow leading into a
+// fresh adventure (name entry, buddy select) -- it only stops once the
+// welcome transition / game screen takes over.
+const MENU_MUSIC_SCREENS = new Set(["title", "name", "buddy"]);
+
 function showOverlayScreen(id) {
+  const wasMenu = MENU_MUSIC_SCREENS.has(getActiveScreenId());
   Object.values(screens).forEach((el) => el.classList.remove("active"));
   screens[id].classList.add("active");
+
+  const isMenu = MENU_MUSIC_SCREENS.has(id);
+  if (isMenu) {
+    AudioManager.playMenuMusic();
+  } else if (wasMenu) {
+    AudioManager.stopMenuMusic();
+  }
+}
+
+function getActiveScreenId() {
+  return Object.keys(screens).find((key) => screens[key].classList.contains("active"));
 }
 
 /* =========================================================================
@@ -229,12 +247,18 @@ function showOverlayScreen(id) {
 const AudioManager = {
   bgm: new Audio(),       // the single ambient track, playing everywhere
   altTrack: new Audio(),  // one-off tracks that override it (e.g. the finale)
+  menuBgm: new Audio(),   // loops only on the title screen
   ducked: false,          // true while in the Music Room
   fadeInterval: null,
+  menuFadeInterval: null,
+  menuStopTimeout: null,
 
   init() {
     this.bgm.loop = true;
     this.bgm.src = "assets/sounds/bgm-main.mp3";
+
+    this.menuBgm.loop = true;
+    this.menuBgm.src = "assets/sounds/bgm-menu-music.mp3";
   },
 
   // Makes sure the single ambient track is actually running. Browsers block
@@ -256,7 +280,20 @@ const AudioManager = {
     this.ensurePlaying();
     this.ducked = roomId === "music";
     const target = state.muted ? 0 : this.ducked ? 0 : state.volume;
-    this.fadeBgmTo(target);
+
+    if (roomId === "giftArea") {
+      // the birthday cover takes over the moment she walks in, not just
+      // when the gift is opened
+      this.playTrack("birthday");
+    } else {
+      if (!this.altTrack.paused) this.stopTrack();
+      this.fadeBgmTo(target);
+    }
+  },
+
+  stopTrack() {
+    this.altTrack.pause();
+    this.altTrack.currentTime = 0;
   },
 
   fadeBgmTo(target, duration = 900) {
@@ -274,8 +311,52 @@ const AudioManager = {
   // right after loading a save, before playback has started.
   applyVolume() {
     const target = state.muted ? 0 : this.ducked ? 0 : state.volume;
-    this.bgm.volume = target;
+    this.bgm.volume = this.altTrack.paused ? target : 0;
     if (!this.altTrack.paused) this.altTrack.volume = state.muted ? 0 : state.volume;
+    if (!this.menuBgm.paused) this.menuBgm.volume = state.muted ? 0 : state.volume;
+  },
+
+  fadeMenuBgmTo(target, duration = 900) {
+    clearInterval(this.menuFadeInterval);
+    const start = this.menuBgm.volume;
+    const t0 = performance.now();
+    this.menuFadeInterval = setInterval(() => {
+      const p = Math.min((performance.now() - t0) / duration, 1);
+      this.menuBgm.volume = start + (target - start) * p;
+      if (p >= 1) clearInterval(this.menuFadeInterval);
+    }, 40);
+  },
+
+  // Starts (or resumes) the looping title-screen track and fades it up to
+  // the current volume. Safe to call repeatedly -- e.g. on every click,
+  // to retry after a browser blocks the very first autoplay attempt.
+  playMenuMusic() {
+    clearTimeout(this.menuStopTimeout);
+    if (this.menuBgm.paused) {
+      this.menuBgm.volume = 0;
+      this.menuBgm.play().catch(() => {
+        // No user gesture yet -- the global click listener will retry.
+      });
+    }
+    const target = state.muted ? 0 : state.volume;
+    this.fadeMenuBgmTo(target);
+  },
+
+  // Fades the title-screen track out and stops it once the fade finishes.
+  stopMenuMusic(fade = true) {
+    if (this.menuBgm.paused) return;
+    clearTimeout(this.menuStopTimeout);
+    if (!fade) {
+      clearInterval(this.menuFadeInterval);
+      this.menuBgm.pause();
+      this.menuBgm.currentTime = 0;
+      return;
+    }
+    this.fadeMenuBgmTo(0, 600);
+    this.menuStopTimeout = setTimeout(() => {
+      this.menuBgm.pause();
+      this.menuBgm.currentTime = 0;
+    }, 650);
   },
 
   // Plays a one-off track on its own channel (e.g. the finale's piano
@@ -294,8 +375,12 @@ const AudioManager = {
   // Stops everything -- used when returning to the title screen.
   stopAll() {
     clearInterval(this.fadeInterval);
+    clearInterval(this.menuFadeInterval);
+    clearTimeout(this.menuStopTimeout);
     this.bgm.pause();
     this.altTrack.pause();
+    this.menuBgm.pause();
+    this.menuBgm.currentTime = 0;
   },
 
   sfx(name) {
@@ -308,15 +393,44 @@ const AudioManager = {
   setMuted(muted) {
     state.muted = muted;
     this.applyVolume();
+    if (typeof activeSongAudios !== "undefined") {
+      activeSongAudios.forEach((a) => (a.volume = muted ? 0 : state.volume));
+    }
     saveGame();
   },
 
   setVolume(v) {
     state.volume = v;
     this.applyVolume();
+    if (typeof activeSongAudios !== "undefined") {
+      activeSongAudios.forEach((a) => (a.volume = state.muted ? 0 : v));
+    }
     saveGame();
   },
 };
+
+/* =========================================================================
+   GLOBAL BUTTON CLICK SOUND
+   Plays a random assets/sounds/sfx-button-click-{one,two,three}.mp3 the
+   instant any <button> is clicked, anywhere in the UI, so it doesn't sound
+   identical every time. Uses the capture phase so it fires before the
+   button's own click handler, regardless of what that handler does.
+   Doubles as the "user gesture" retry point for menu music autoplay.
+========================================================================= */
+const BUTTON_CLICK_SOUNDS = ["button-click-one", "button-click-two", "button-click-three"];
+document.addEventListener(
+  "click",
+  (e) => {
+    if (MENU_MUSIC_SCREENS.has(getActiveScreenId())) {
+      AudioManager.playMenuMusic();
+    }
+    if (e.target.closest("button")) {
+      const sound = BUTTON_CLICK_SOUNDS[Math.floor(Math.random() * BUTTON_CLICK_SOUNDS.length)];
+      AudioManager.sfx(sound);
+    }
+  },
+  true
+);
 
 /* =========================================================================
    AMBIENT FLOATING HEARTS (same touch as the original site)
@@ -854,6 +968,7 @@ function handleInteractPress() {
 
   switch (obj.type) {
     case "npc":
+      AudioManager.sfx("interact");
       dialogue.show(CONFIG.senderName, CONFIG.npcDialogue);
       break;
 
@@ -888,7 +1003,8 @@ function showNextReason() {
     }
   }
   const reason = reasonBag.pop();
-  AudioManager.sfx("flower-reveal");
+  const flowerSounds = ["open-flower-one", "open-flower-two", "open-flower-three", "open-flower-four"];
+  AudioManager.sfx(flowerSounds[Math.floor(Math.random() * flowerSounds.length)]);
   dialogue.show("", [reason]);
 }
 
@@ -907,6 +1023,9 @@ function openModal(id) {
 function closeModal(id) {
   document.getElementById(id).classList.add("hidden");
   inputState.frozen = false;
+  if (id === "modal-music") {
+    activeSongAudios.forEach((a) => a.pause());
+  }
 }
 
 function closeTopModal() {
@@ -955,7 +1074,7 @@ function openLetterModal() {
 btnOpenLetter.addEventListener("click", () => {
   if (envelopeEl.classList.contains("open")) return;
   envelopeEl.classList.add("open");
-  AudioManager.sfx("letter-open");
+  AudioManager.sfx("open-letter");
   btnOpenLetter.disabled = true;
   btnOpenLetter.style.opacity = "0.5";
 
@@ -1002,6 +1121,8 @@ function typeLetter() {
 /* --- music modal: build song cards once from CONFIG.songs --- */
 const songListEl = document.getElementById("song-list");
 
+const activeSongAudios = [];
+
 CONFIG.songs.forEach((song) => {
   const card = document.createElement("div");
   card.className = "song-card";
@@ -1027,21 +1148,84 @@ CONFIG.songs.forEach((song) => {
   note.className = "song-note";
   note.textContent = song.note || "";
 
-  const link = document.createElement("a");
-  link.className = "listen-btn";
-  link.target = "_blank";
-  link.rel = "noopener";
+  body.append(h3, artist, note);
+
   if (hasUrl) {
-    link.href = song.url;
-    link.textContent = "Listen ▸";
+    // inline player instead of a raw browser tab/plain native controls
+    const player = document.createElement("div");
+    player.className = "song-player";
+
+    const playBtn = document.createElement("button");
+    playBtn.type = "button";
+    playBtn.className = "song-play-btn";
+    playBtn.setAttribute("aria-label", `Play ${song.title}`);
+    playBtn.textContent = "▶";
+
+    const track = document.createElement("div");
+    track.className = "song-track";
+    const trackFill = document.createElement("div");
+    trackFill.className = "song-track-fill";
+    track.appendChild(trackFill);
+
+    const time = document.createElement("span");
+    time.className = "song-time";
+    time.textContent = "0:00";
+
+    const audio = new Audio(song.url);
+    audio.preload = "none";
+    audio.volume = state.muted ? 0 : state.volume;
+    activeSongAudios.push(audio);
+
+    playBtn.addEventListener("click", () => {
+      // pause any other song currently playing
+      activeSongAudios.forEach((a) => {
+        if (a !== audio) a.pause();
+      });
+      if (audio.paused) {
+        audio.play().catch(() => {});
+      } else {
+        audio.pause();
+      }
+    });
+
+    audio.addEventListener("play", () => {
+      playBtn.textContent = "❚❚";
+      card.classList.add("is-playing");
+    });
+    audio.addEventListener("pause", () => {
+      playBtn.textContent = "▶";
+      card.classList.remove("is-playing");
+    });
+    audio.addEventListener("ended", () => {
+      playBtn.textContent = "▶";
+      card.classList.remove("is-playing");
+      trackFill.style.width = "0%";
+      time.textContent = "0:00";
+    });
+    audio.addEventListener("timeupdate", () => {
+      if (audio.duration) {
+        trackFill.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+      }
+      const mins = Math.floor(audio.currentTime / 60);
+      const secs = Math.floor(audio.currentTime % 60).toString().padStart(2, "0");
+      time.textContent = `${mins}:${secs}`;
+    });
+    track.addEventListener("click", (e) => {
+      if (!audio.duration) return;
+      const rect = track.getBoundingClientRect();
+      const ratio = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = ratio * audio.duration;
+    });
+
+    player.append(playBtn, track, time);
+    body.appendChild(player);
   } else {
-    link.href = "#";
-    link.classList.add("is-placeholder");
-    link.textContent = "Add a link ▸";
-    link.addEventListener("click", (e) => e.preventDefault());
+    const placeholder = document.createElement("span");
+    placeholder.className = "listen-btn is-placeholder";
+    placeholder.textContent = "Add a link ▸";
+    body.appendChild(placeholder);
   }
 
-  body.append(h3, artist, note, link);
   card.append(icon, body);
   songListEl.appendChild(card);
 });
@@ -1147,6 +1331,12 @@ const ROOM_FADE_MS = 220;
 
 function goToRoomWithFade(roomId, spawn) {
   if (roomId === state.room) return;
+
+  if (roomId === "hub") {
+    AudioManager.sfx("exit-room"); // leaving a room, heading back to the hub
+  } else {
+    AudioManager.sfx("enter-room"); // leaving the hub, heading into a room
+  }
 
   if (prefersReducedMotion) {
     goToRoom(roomId, spawn);
@@ -4165,7 +4355,6 @@ function triggerFinale() {
   state.visited.giftArea = true;
   saveGame();
   AudioManager.sfx("gift-open");
-  AudioManager.playTrack("birthday"); // a cute piano Happy Birthday cover, see assets/sounds/README.md
 
   finaleOverlay.classList.remove("hidden");
   if (!prefersReducedMotion) {
