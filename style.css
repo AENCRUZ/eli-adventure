@@ -1007,6 +1007,75 @@ body.touch-enabled .touch-controls {
 
 .listen-btn.is-placeholder {
   opacity: 0.55;
+  cursor: default;
+}
+
+/* --- inline song player, replaces the plain native audio tab --- */
+.song-card {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.song-card.is-playing {
+  border-left-color: var(--rose);
+  box-shadow: 0 8px 20px -10px rgba(255, 125, 160, 0.45);
+}
+
+.song-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.song-play-btn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rose), var(--gold));
+  color: var(--white);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px -4px rgba(255, 125, 160, 0.6);
+  transition: transform 0.15s ease;
+}
+
+.song-play-btn:hover {
+  transform: scale(1.06);
+}
+
+.song-play-btn:active {
+  transform: scale(0.94);
+}
+
+.song-track {
+  flex: 1 1 auto;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--blush);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.song-track-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--rose), var(--gold));
+  transition: width 0.1s linear;
+}
+
+.song-time {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: var(--plum-soft);
+  font-variant-numeric: tabular-nums;
+  min-width: 30px;
+  text-align: right;
 }
 
 /* --- settings modal --- */
